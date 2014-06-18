@@ -38,5 +38,17 @@
 
       return Db::getInstance()->Execute($create_transaction_db);
     }
+
+    public function hookPayment($params) {
+      if (!empty($this->context->cookie->smartcoin_error)) {
+  			$this->smarty->assign('smartcoin_error', $this->context->cookie->smartcoin_error);
+  			$this->context->cookie->__set('smartcoin_error', null);
+  		}
+
+  		$this->smarty->assign('validation_url', (Configuration::get('PS_SSL_ENABLED') ? 'https' : 'http').'://'.$_SERVER['HTTP_HOST'].__PS_BASE_URI__.'index.php?process=validation&fc=module&module=smartcoin&controller=default');
+  		$this->smarty->assign('smartcoin_ps_version', _PS_VERSION_);
+
+      return $this->display(__FILE__, './views/templates/hook/payment.tpl');
+    }
   }
 ?>
