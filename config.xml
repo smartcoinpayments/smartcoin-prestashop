@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+	<name>smartcoin</name>
+	<displayName><![CDATA[SmartCoin]]></displayName>
+	<version><![CDATA[0.0.1]]></version>
+	<description><![CDATA[Accept payments with SmartCoin]]></description>
+	<author><![CDATA[SmartCoin LTDA.]]></author>
+	<tab><![CDATA[payments_gateways]]></tab>
+	<confirmUninstall>Warning: Are you sure you want uninstall this module?</confirmUninstall>
+	<is_configurable>1</is_configurable>
+	<need_instance>0</need_instance>
+	<limited_countries></limited_countries>
+</module>
