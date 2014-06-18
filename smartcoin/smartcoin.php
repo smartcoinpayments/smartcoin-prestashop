@@ -111,11 +111,12 @@
   		$this->context->controller->addCSS($this->_path.'css/smartcoin-prestashop.css');
 
   		return '
-  		<script type="text/javascript" src="https://js.smartcoin.com.br/v1/"></script>';
-  		//<script type="text/javascript" src="'. $this->_path .'js/stripe-prestashop.js"></script>
-  		//<script type="text/javascript">
-  		//	var stripe_public_key = \''.addslashes(Configuration::get('STRIPE_MODE') ? Configuration::get('STRIPE_PUBLIC_KEY_LIVE') : Configuration::get('STRIPE_PUBLIC_KEY_TEST')).'\';
-  		//</script>';
+  		<script type="text/javascript" src="https://js.smartcoin.com.br/v1/smartcoin.js"></script>
+      <script type="text/javascript" src="https://js.smartcoin.com.br/v1/jquery.payment.js"></script>
+  		<script type="text/javascript" src="'. $this->_path .'js/smartcoin-prestashop.js"></script>
+  		<script type="text/javascript">
+  			var smartcoin_api_key = \''.addslashes(Configuration::get('SMARTCOIN_MODE') ? Configuration::get('SMARTCOIN_API_KEY_LIVE') : Configuration::get('SMARTCOIN_API_KEY_TEST')).'\';
+  		</script>';
   	}
 
 
