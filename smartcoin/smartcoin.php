@@ -21,7 +21,7 @@
     }
 
     public function install(){
-      $ret = parent::install() && $this->registerHook('payment')
+      $ret = parent::install() && $this->registerHook('payment') && $this->registerHook('header')
             && $this->registerHook('paymentReturn') && $this->installDB();
 
       return $ret;
@@ -50,5 +50,21 @@
 
       return $this->display(__FILE__, './views/templates/hook/payment.tpl');
     }
+
+    public function hookHeader() {
+  		/* Continue only if we are in the checkout process */
+  		if (Tools::getValue('controller') != 'order-opc' && (!($_SERVER['PHP_SELF'] == __PS_BASE_URI__.'order.php' || $_SERVER['PHP_SELF'] == __PS_BASE_URI__.'order-opc.php' || Tools::getValue('controller') == 'order' || Tools::getValue('controller') == 'orderopc' || Tools::getValue('step') == 3)))
+  			return;
+
+  		/* Load JS and CSS files through CCC */
+  		$this->context->controller->addCSS($this->_path.'css/smartcoin-prestashop.css');
+
+  		return '
+  		<script type="text/javascript" src="https://js.smartcoin.com.br/v1/"></script>';
+  		//<script type="text/javascript" src="'. $this->_path .'js/stripe-prestashop.js"></script>
+  		//<script type="text/javascript">
+  		//	var stripe_public_key = \''.addslashes(Configuration::get('STRIPE_MODE') ? Configuration::get('STRIPE_PUBLIC_KEY_LIVE') : Configuration::get('STRIPE_PUBLIC_KEY_TEST')).'\';
+  		//</script>';
+  	}
   }
 ?>
