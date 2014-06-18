@@ -20,6 +20,12 @@
 
     }
 
+
+    /**
+  	 * SmartCoin's module installation
+  	 *
+  	 * @return boolean Install result
+  	 */
     public function install(){
       $ret = parent::install() && $this->registerHook('payment') && $this->registerHook('header')
             && $this->registerHook('paymentReturn') && $this->installDB();
@@ -27,6 +33,12 @@
       return $ret;
     }
 
+
+    /**
+  	 * SmartCoin's module database tables installation
+  	 *
+  	 * @return boolean Database tables installation result
+  	 */
     public function installDB() {
       $create_transaction_db = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'smartcoin_transaction` (`id_smartcoin_transaction` int(11) NOT NULL AUTO_INCREMENT,
 		  `type` enum(\'payment\',\'refund\') NOT NULL, `id_order` int(10) unsigned NOT NULL, `id_transaction` varchar(32) NOT NULL,
@@ -39,6 +51,12 @@
       return Db::getInstance()->Execute($create_transaction_db);
     }
 
+
+    /**
+  	 * Display the SmartCoin's payment form
+  	 *
+  	 * @return string SmartCoin's Smarty template content
+  	 */
     public function hookPayment($params) {
       if (!empty($this->context->cookie->smartcoin_error)) {
   			$this->smarty->assign('smartcoin_error', $this->context->cookie->smartcoin_error);
@@ -51,6 +69,13 @@
       return $this->display(__FILE__, './views/templates/hook/payment.tpl');
     }
 
+
+    /**
+  	 * Load Javascripts and CSS related to the SmartCoin's module
+  	 * Only loaded during the checkout process
+  	 *
+  	 * @return string HTML/JS Content
+  	 */
     public function hookHeader() {
   		/* Continue only if we are in the checkout process */
   		if (Tools::getValue('controller') != 'order-opc' && (!($_SERVER['PHP_SELF'] == __PS_BASE_URI__.'order.php' || $_SERVER['PHP_SELF'] == __PS_BASE_URI__.'order-opc.php' || Tools::getValue('controller') == 'order' || Tools::getValue('controller') == 'orderopc' || Tools::getValue('step') == 3)))
