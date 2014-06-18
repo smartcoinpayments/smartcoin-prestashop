@@ -8,12 +8,12 @@
 		<div class="smartcoin-card-deleted"></div>
 		<label>{l s='Card Number' mod='smartcoin'}</label><br />
 		<input type="text" size="20" autocomplete="off" class="smartcoin-card-number" />
-			<img class="cc-icon disable" rel="Visa" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-visa.png" />
-			<img class="cc-icon disable" rel="MasterCard" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-mastercard.png" />
-			<img class="cc-icon disable" rel="Discover" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-discover.png" />
-			<img class="cc-icon disable" rel="American Express" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-amex.png" />
-			<img class="cc-icon disable" rel="JCB" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-jcb.png" />
-			<img class="cc-icon disable" rel="Diners Club" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-diners.png" />
+			<img class="cc-icon disable" rel="visa" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-visa.png" />
+			<img class="cc-icon disable" rel="mastercard" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-mastercard.png" />
+			<img class="cc-icon disable" rel="discover" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-discover.png" />
+			<img class="cc-icon disable" rel="amex" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-amex.png" />
+			<img class="cc-icon disable" rel="jcb" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-jcb.png" />
+			<img class="cc-icon disable" rel="dinersclub" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-diners.png" />
 
 		<div class="block-left">
 			<label>{l s='CVC' mod='smartcoin'}</label><br />
@@ -46,7 +46,7 @@
 			{assign var='startyear' value=$smarty.now|date_format:"%Y"}
             		{assign var='endyear' value=($smarty.now|date_format:"%Y" + 10)}
 
-            		{for $i=$startyear to $endyear}
+            		{for $i=($startyear+1) to $endyear}
                 		<option value="{$i}">{$i}</option>
             		{/for}
         </select>
