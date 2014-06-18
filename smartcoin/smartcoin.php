@@ -55,6 +55,18 @@
       return Db::getInstance()->Execute($create_transaction_db);
     }
 
+    /**
+  	 * SmartCoin's module uninstallation (Configuration values, database tables...)
+  	 *
+  	 * @return boolean Uninstall result
+  	 */
+  	public function uninstall() {
+  		return parent::uninstall() && Configuration::deleteByName('SMARTCOIN_API_KEY_TEST') && Configuration::deleteByName('SMARTCOIN_API_KEY_LIVE')
+  		&& Configuration::deleteByName('SMARTCOIN_MODE') && Configuration::deleteByName('SMARTCOIN_SECRET_KEY_TEST') && Configuration::deleteByName('SMARTCOIN_SECRET_KEY_LIVE') &&
+  		Configuration::deleteByName('SMARTCOIN_CHARGEBACKS_ORDER_STATUS') && Configuration::deleteByName('SMARTCOIN_PENDING_ORDER_STATUS') && Configuration::deleteByName('SMARTCOIN_PAYMENT_ORDER_STATUS') &&
+  		Db::getInstance()->Execute('DROP TABLE `'._DB_PREFIX_.'smartcoin_transaction`');
+  	}
+
 
     /**
   	 * Display the SmartCoin's payment form
