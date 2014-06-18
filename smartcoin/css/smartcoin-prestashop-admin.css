@@ -1,0 +1,48 @@
+.smartcoin-module-wrapper { clear: both; margin: 0px auto; min-width: 930px; max-width: 1024px; overflow: hidden; }
+.smartcoin-module-header { clear: both; margin-bottom: 40px; padding-top: 15px; overflow: hidden; }
+.smartcoin-module-header img.smartcoin-logo { float: left; margin: 0px 70px 0px 0px; }
+.smartcoin-module-header span.smartcoin-module-intro { border-left: #C3D9EF solid 1px; color: #008CDD; display: block; float: left; font-size: 18px; height: 61px; line-height: 24px; margin: 0px 35px 0px 0px; padding: 11px 0px 0px 20px; width: 310px; }
+.smartcoin-module-header a.smartcoin-module-create-btn { background: url(../img/bg_btn-blue.png) left top no-repeat; color: #FFF; display: inline-block; font-size: 16px; font-weight: bold; height: 35px; line-height: 33px; margin: 16px 0px 0px 0px; padding: 0px 0px 0px 20px; text-shadow: 0px -1px 0px #03609E; }
+.smartcoin-module-header a.smartcoin-module-create-btn span { background: url(../img/bg_btn-blue.png) right bottom no-repeat; display: block; height: 35px; margin: 0px -20px 0px 0px; padding: 0px 20px 0px 0px; }
+
+.smartcoin-module-wrap { background-color: #F7FBFF; border: #C3D9EF solid 1px; -moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px; clear: both; margin: 0px 0px 15px 0px; overflow: hidden; padding: 15px; }
+.smartcoin-module-col1 { float: right; margin: 0px; overflow: hidden; width: 320px; }
+.smartcoin-module-col2 { margin: 0px 335px 0px 0px; overflow: hidden; min-width: 563px; }
+.smartcoin-module-col1inner { float: left; margin: 0px; overflow: hidden; width: 48%; }
+.smartcoin-module-col2inner { clear: both; margin: 0px; padding-top: 20px; }
+.smartcoin-module-wrap .smartcoin-module-col2inner h3 { border-top: #C3D9EF solid 1px; padding-top: 20px; }
+.smartcoin-module-wrap h3 { color: #008CDD; font-size: 18px; font-weight: normal; line-height: 22px; margin: 0px 0px 15px 0px; padding: 0px; text-shadow: 0px -1px 0px #DAF2FF; }
+.smartcoin-module-wrap p, .smartcoin-module-wrap ul li { color: #535353; font-size: 14px; line-height: 22px; margin: 0px; padding: 0px; text-shadow: 0px 1px 0px #FFFFFF; }
+.smartcoin-module-wrap a.smartcoin-module-btn { background: url(../img/smartcoin-btn-arrow.png) left center no-repeat; color: #008CDD; display: inline-block; margin: 7px 0px; padding-left: 8px; text-decoration: none; text-shadow: 0px 1px 0px #FFFFFF; }
+.smartcoin-module-wrap a.smartcoin-module-btn:hover { text-decoration: underline; }
+.smartcoin-module-wrap ul { list-style: none; margin: 0px; padding: 0px; }
+.smartcoin-module-wrap ul li { background: url(../img/checkmark-blue.png) left 5px no-repeat; margin: 0px; padding: 0px 0px 0px 15px; }
+img.smartcoin-cc { margin: 0px 40px 0px 0px; vertical-align: middle; }
+
+.floatRight { float: right; }
+.smartcoin-module-wrap-video { background-color: #FFFFFF; border: #C3D9EF solid 1px; -moz-border-radius: 3px; -webkit-border-radius: 3px; border-radius: 3px; padding: 6px; overflow: hidden; }
+img.smartcoin-dashboard { margin: 0px; }
+a.smartcoin-module-video-btn { display: inline-block; margin: 15px 0px 0px 0px; position: relative; }
+img.smartcoin-video-btn { position: absolute; left: 119px; top: 80px; }
+
+table.smartcoin-technical td { padding: 4px 0px; }
+
+fieldset.smartcoin-settings { width: 670px; float: left; margin-right: 20px; }
+table.smartcoin-settings label { float: none; padding-right: 0px; text-align: right; width: auto; }
+table.smartcoin-settings { margin: 0px; }
+table.smartcoin-settings td { border-bottom: #CCCED7 solid 1px; padding: 8px; }
+table.smartcoin-settings td.td-right { color: #7F7F7F; font-size: 0.9em; }
+table.smartcoin-settings td.td-noborder { border-bottom: none; }
+table.smartcoin-settings td.save { text-align: center; padding-top: 15px; }
+table.smartcoin-settings table.innerTable td { border: none; padding: 6px; }
+table.smartcoin-settings table.innerTable td.vertBorder { border-left: #CCCED7 solid 1px; }
+input.button:hover { cursor: pointer; }
+
+fieldset.smartcoin-cc-numbers { width: 277px; float: left; }
+table.smartcoin-cc-numbers { border: #CCCED7 solid 1px; background-color: #FFFFFF; }
+table.smartcoin-cc-numbers th { background-color: #F7FBFF; border-bottom: #CCCED7 solid 1px; padding: 5px 25px 5px 8px; text-align: left; }
+table.smartcoin-cc-numbers td { border-bottom: #CCCED7 solid 1px; padding: 5px 25px 5px 8px; }
+table.smartcoin-cc-numbers td.last { border-bottom: none; }
+table.smartcoin-cc-numbers td.number code { font-family: Courier; }
+
+.smartcoin-module-wrapper table { color: #585A69; font-size: 12px; text-shadow: 0 1px 0 #FFFFFF;}
