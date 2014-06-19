@@ -86,6 +86,161 @@
     }
 
     /**
+  	 * Display a confirmation message after an order has been placed
+  	 *
+  	 * @param array Hook parameters
+  	 */
+  	public function hookPaymentReturn($params) {
+  		if (!isset($params['objOrder']) || ($params['objOrder']->module != $this->name))
+  			return false;
+
+  		if ($params['objOrder'] && Validate::isLoadedObject($params['objOrder']) && isset($params['objOrder']->valid))
+
+  			$this->smarty->assign('smartcoin_order', array('reference' => isset($params['objOrder']->reference) ? $params['objOrder']->reference : '#'.sprintf('%06d', $params['objOrder']->id), 'valid' => $params['objOrder']->valid));
+
+  			// added this so we could present a better/meaningful message to the customer when the charge suceeds, but verifications have failed.
+  			$pendingOrderStatus = (int)Configuration::get('SMARTCOIN_PENDING_ORDER_STATUS');
+  			$currentOrderStatus = (int)$params['objOrder']->getCurrentState();
+
+  			if ($pendingOrderStatus==$currentOrderStatus)
+  				$this->smarty->assign('order_pending', true);
+  			else
+  				$this->smarty->assign('order_pending', false);
+
+  		return $this->display(__FILE__, './views/templates/hook/order-confirmation.tpl');
+
+  	}
+
+
+    /**
+  	 * Process a payment
+  	 *
+  	 * @param string $token SmartCoin Transaction ID (token)
+  	 */
+  	public function processPayment($token) {
+  		/* If 1.4 and no backward, then leave */
+  		if (!$this->backward)
+  			return;
+
+  		include(dirname(__FILE__).'/lib/SmartCoin.php');
+  		$access_key = Configuration::get('SMARTCOIN_MODE') ? Configuration::get('SMARTCOIN_API_KEY_LIVE') .':'. Configuration::get('SMARTCOIN_SECRECT_KEY_LIVE') : Configuration::get('SMARTCOIN_API_KEY_TEST') .':'. Configuration::get('SMARTCOIN_SECRET_KEY_TEST');
+
+  		try {
+  			$charge_details = array('amount' => $this->context->cart->getOrderTotal() * 100, 'currency' => $this->context->currency->iso_code, 'description' => $this->l('PrestaShop Customer ID:').
+  			' '.(int)$this->context->cookie->id_customer.' - '.$this->l('PrestaShop Cart ID:').' '.(int)$this->context->cart->id);
+
+  			$charge_details['card'] = $token;
+
+  			$result_json = Charge::create($charge_details,$access_key);
+
+  		// catch the smartcoin error the correct way.
+      } catch(\SmartCoin\Error $e) {
+  			$body = $e->get_json_body();
+  			$err = $body['error'];
+
+  			$message = $err['message'];
+
+  			if (class_exists('Logger'))
+  				Logger::addLog($this->l('SmartCoin - Payment transaction failed').' '.$message, 1, null, 'Cart', (int)$this->context->cart->id, true);
+  			$this->context->cookie->__set("smartcoin_error", 'There was a problem with your payment');
+  			$controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
+  			$location = $this->context->link->getPageLink($controller).(strpos($controller, '?') !== false ? '&' : '?').'step=3#smartcoin_error';
+  			header('Location: '.$location);
+  			exit;
+
+  		} catch (Exception $e) {
+  			$message = $e->getMessage();
+  			if (class_exists('Logger'))
+  				Logger::addLog($this->l('Smartcoin - Payment transaction failed').' '.$message, 1, null, 'Cart', (int)$this->context->cart->id, true);
+
+  			/* If it's not a critical error, display the payment form again */
+  			if ($e->getCode() != 'card_declined') {
+  				$this->context->cookie->__set("smartcoin_error",$e->getMessage());
+  				$controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
+  				header('Location: '.$this->context->link->getPageLink($controller).(strpos($controller, '?') !== false ? '&' : '?').'step=3#smartcoin_error');
+  				exit;
+  			}
+  		}
+
+  		/* Log Transaction details */
+  		if (!isset($message)) {
+  			if (!isset($result_json->fees))
+  				$result_json->fee = 0;
+        else {
+          $total_fee = 0;
+          foreach($result_json->fees as $fee) {
+            $total_fee += $fee->amount;
+          }
+          $result_json->fee = $total_fee;
+        }
+
+  			$order_status = (int)Configuration::get('SMARTCOIN_PAYMENT_ORDER_STATUS');
+  			$message = $this->l('SmartCoin Transaction Details:')."\n\n".
+  			$this->l('SmartCoin Transaction ID:').' '.$result_json->id."\n".
+  			$this->l('Amount:').' '.($result_json->amount * 0.01)."\n".
+  			$this->l('Status:').' '.($result_json->paid == 'true' ? $this->l('Paid') : $this->l('Unpaid'))."\n".
+  			$this->l('Processed on:').' '.strftime('%Y-%m-%d %H:%M:%S', $result_json->created)."\n".
+  			$this->l('Currency:').' '. Tools::strtoupper($result_json->currency)."\n".
+  			$this->l('Credit card:').' '.$result_json->card->type.' ('.$this->l('Exp.:').' '.$result_json->card->exp_month.'/'.$result_json->card->exp_year.')'."\n".
+  			$this->l('Last 4 digits:').' '.sprintf('%04d', $result_json->card->last4).' ('.$this->l('CVC Check:').' '.($result_json->card->cvc_check == 'pass' ? $this->l('OK') : $this->l('NOT OK')).')'."\n".
+  			$this->l('Processing Fee:').' '.($result_json->fee * 0.01)."\n".
+  			$this->l('Mode:').' '.($result_json->livemode == 'true' ? $this->l('Live') : $this->l('Test'))."\n";
+
+  			/* In case of successful payment, the address / zip-code can however fail */
+  			if (isset($result_json->card->address_line1_check) && $result_json->card->address_line1_check == 'fail') {
+  				$message .= "\n".$this->l('Warning: Address line 1 check failed');
+  				$order_status = (int)Configuration::get('SMARTCOIN_PENDING_ORDER_STATUS');
+  			}
+  			if (isset($result_json->card->address_zip_check) && $result_json->card->address_zip_check == 'fail') {
+  				$message .= "\n".$this->l('Warning: Address zip-code check failed');
+  				$order_status = (int)Configuration::get('SMARTCOIN_PENDING_ORDER_STATUS');
+  			}
+  			// warn if cvc check fails
+  			if (isset($result_json->card->cvc_check) && $result_json->card->cvc_check == 'fail') {
+  				$message .= "\n".$this->l('Warning: CVC verification check failed');
+  				$order_status = (int)Configuration::get('SMARTCOIN_PENDING_ORDER_STATUS');
+  			}
+  		}
+  		else
+  			$order_status = (int)Configuration::get('PS_OS_ERROR');
+
+  		/* Create the PrestaShop order in database */
+  		$this->validateOrder((int)$this->context->cart->id, (int)$order_status, ($result_json->amount * 0.01), $this->displayName, $message, array(), null, false, $this->context->customer->secure_key);
+
+  		/** @since 1.5.0 Attach the SmartCoin Transaction ID to this Order */
+  		if (version_compare(_PS_VERSION_, '1.5', '>=')) {
+  			$new_order = new Order((int)$this->currentOrder);
+  			if (Validate::isLoadedObject($new_order)) {
+  				$payment = $new_order->getOrderPaymentCollection();
+  				if (isset($payment[0])) {
+  					$payment[0]->transaction_id = pSQL($result_json->id);
+  					$payment[0]->save();
+  				}
+  			}
+  		}
+
+  		/* Store the transaction details */
+  		if (isset($result_json->id))
+  			Db::getInstance()->Execute('
+  			INSERT INTO '._DB_PREFIX_.'smartcoin_transaction (type, id_cart, id_order,
+  			id_transaction, amount, status, currency, cc_type, cc_exp, cc_last_digits, cvc_check, fee, mode, date_add)
+  			VALUES (\'payment\', '.(int)$this->context->cart->id.', '.(int)$this->currentOrder.', \''.pSQL($result_json->id).'\',
+  			\''.($result_json->amount * 0.01).'\', \''.($result_json->paid == 'true' ? 'paid' : 'unpaid').'\', \''.pSQL($result_json->currency).'\',
+  			\''.pSQL($result_json->card->type).'\', \''.(int)$result_json->card->exp_month.'/'.(int)$result_json->card->exp_year.'\', '.(int)$result_json->card->last4.',
+  			'.($result_json->card->cvc_check == 'pass' ? 1 : 0).', \''.($result_json->fee * 0.01).'\', \''.($result_json->livemode == 'true' ? 'live' : 'test').'\', NOW())');
+
+  		/* Redirect the user to the order confirmation page / history */
+  		if (_PS_VERSION_ < 1.5)
+  			$redirect = __PS_BASE_URI__.'order-confirmation.php?id_cart='.(int)$this->context->cart->id.'&id_module='.(int)$this->id.'&id_order='.(int)$this->currentOrder.'&key='.$this->context->customer->secure_key;
+  		else
+  			$redirect = __PS_BASE_URI__.'index.php?controller=order-confirmation&id_cart='.(int)$this->context->cart->id.'&id_module='.(int)$this->id.'&id_order='.(int)$this->currentOrder.'&key='.$this->context->customer->secure_key;
+
+  		header('Location: '.$redirect);
+  		exit;
+  	}
+
+
+    /**
   	 * Display the two fieldsets containing SmartCoin's transactions details
   	 * Visible on the Order's detail page in the Back-office only
   	 *
