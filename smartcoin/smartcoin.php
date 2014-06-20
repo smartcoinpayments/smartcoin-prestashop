@@ -269,11 +269,11 @@
   		/* Store the refund details */
   		Db::getInstance()->Execute('
   		  INSERT INTO '._DB_PREFIX_.'smartcoin_transaction (type, id_cart, id_order, id_transaction,
-        amount, status, currency, cc_type, cc_exp, cc_last_digits, fee, mode, date_add)
+        amount, status, currency, cc_type, cc_exp, cc_last_digits, installments, fee, mode, date_add)
   		    VALUES (\'refund\', '.(int)$original_transaction['id_cart'].', '.
   		(int)$original_transaction['id_order'].', \''.pSQL($id_transaction_smartcoin).'\',
   		\''.(float)$amount.'\', \''.(!isset($this->_errors['smartcoin_refund_error']) ? 'paid' : 'unpaid').'\', \''.pSQL($result_json->currency).'\',
-  		\'\', \'\', 0, 0, \''.(Configuration::get('smartcoin_MODE') ? 'live' : 'test').'\', NOW())');
+  		\'\', \'\', 0, 0, 0, \''.(Configuration::get('smartcoin_MODE') ? 'live' : 'test').'\', NOW())');
   	}
 
 
