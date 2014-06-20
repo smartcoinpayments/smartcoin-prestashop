@@ -1,14 +1,52 @@
-div.payment_module { padding-bottom: 20px; text-transform: none; }
-.smartcoin_title img { float: none; margin-right: 8px; margin-top: -2px; vertical-align: middle; }
+div.payment_module {
+	padding-bottom: 20px;
+	text-transform: none;
+}
+
+.smartcoin_title img {
+	float: none;
+	margin-right: 8px;
+	margin-top: -2px;
+	vertical-align: middle;
+}
+
 #smartcoin-payment-form {}
-#smartcoin-payment-form label { display: inline-block; margin-bottom: 4px; text-transform: uppercase; }
-#smartcoin-payment-form label.lowercase { text-transform: none; }
-#smartcoin-payment-form input[type="text"], #smartcoin-payment-form select { border: #CCCCCC solid 1px; margin-bottom: 15px; padding: 3px; }
-#smartcoin-payment-form input[type="checkbox"] { margin-bottom: 15px; }
-#smartcoin-payment-form input.smartcoin-card-number { width: 210px; }
+
+#smartcoin-payment-form label {
+	display: inline-block;
+	margin-bottom: 4px;
+	text-transform: uppercase;
+}
+
+#smartcoin-payment-form label.lowercase {
+	text-transform: none;
+}
+
+#smartcoin-payment-form input[type="text"], #smartcoin-payment-form select {
+	border: #CCCCCC solid 1px;
+	margin-bottom: 15px;
+	padding: 3px;
+}
+
+#smartcoin-payment-form input[type="checkbox"] {
+	margin-bottom: 15px;
+}
+
+#smartcoin-payment-form input.smartcoin-card-number {
+	width: 210px;
+}
+
 #smartcoin-payment-form input.smartcoin-card-cvc {  }
-#smartcoin-payment-form a { display: inline; position: relative; }
-a.smartcoin-card-cvc-info { font-style: italic; }
+
+#smartcoin-payment-form a {
+	display: inline;
+	position: relative;
+}
+
+a.smartcoin-card-cvc-info {
+	font-style: italic;
+}
+
 a.smartcoin-card-cvc-info div.cvc-info {
 	background-color: #BDE5F8;
 	border: #00529B solid 1px;
@@ -20,18 +58,51 @@ a.smartcoin-card-cvc-info div.cvc-info {
 	font-style: normal;
 	padding: 8px;
 	position: absolute;
-	right: -320px; top: -10px;
+	right: -320px;
+	 top: -10px;
 	text-decoration: none;
 	width: 300px;
 }
-a.smartcoin-card-cvc-info:hover div.cvc-info { display: block; }
-div.cvc-info:hover { cursor: default; }
-#smartcoin-payment-form img.cc-icon { border: #CCCCCC solid 1px; margin-right: 5px;  }
-.block-left { display: inline-block; float: left; margin-right: 20px; }
-img.disable { opacity: 0.3; display: none; }
-img.enable { opacity: 1;  display: inline-block;}
-#smartcoin-payment-form-cc .smartcoin-submit-button-cc { margin-left: 5px; }
-#smartcoin-payment-form-cc a { display: inline; font-size: 11px; text-decoration: underline; }
+
+a.smartcoin-card-cvc-info:hover div.cvc-info {
+	display: block;
+}
+
+div.cvc-info:hover {
+	cursor: default;
+}
+
+#smartcoin-payment-form img.cc-icon {
+	border: #CCCCCC solid 1px;
+	margin-right: 5px;
+}
+
+.block-left {
+	display: inline-block;
+	float: left;
+	margin-right: 20px;
+}
+
+img.disable {
+	opacity: 0.3;
+	display: none;
+ }
+
+img.enable {
+	opacity: 1;
+	display: inline-block;
+}
+
+#smartcoin-payment-form-cc .smartcoin-submit-button-cc {
+	margin-left: 5px;
+}
+
+#smartcoin-payment-form-cc a {
+	display: inline;
+	font-size: 11px;
+	text-decoration: underline;
+}
+
 #smartcoin-payment-form .smartcoin-submit-button, #smartcoin-payment-form-cc .smartcoin-submit-button-cc {
 	position:relative;
 	display:inline-block;
@@ -45,10 +116,12 @@ img.enable { opacity: 1;  display: inline-block;}
 	background:#f4b61b;
 	cursor: pointer;
 }
+
 #smartcoin-payment-form .smartcoin-submit-button:hover, #smartcoin-payment-form-cc .smartcoin-submit-button-cc:hover {
 	text-decoration:none;
 	background-position: left -50px
 }
+
 div.smartcoin-payment-errors {
 	margin: 0 0 10px 0;
 	padding: 10px;
@@ -67,12 +140,27 @@ div.smartcoin-card-deleted {
 	text-transform: none;
 }
 
-#smartcoin-translations, #smartcoin-ajax-loader { display: none; }
-#smartcoin_save_token { vertical-align: top; }
-a#smartcoin_error { display: none; }
-#smartcoin-payment-form input, #smartcoin-payment-form select { margin-left: 0; }
-#smartcoin-replace-card, #smartcoin-delete-card { border: none; padding: 0; cursor: pointer; }
+#smartcoin-translations, #smartcoin-ajax-loader {
+	display: none;
+}
 
+#smartcoin_save_token {
+	vertical-align: top;
+}
+
+a#smartcoin_error {
+	display: none;
+}
+
+#smartcoin-payment-form input, #smartcoin-payment-form select {
+	margin-left: 0;
+}
+
+#smartcoin-replace-card, #smartcoin-delete-card {
+	border: none;
+	padding: 0;
+	cursor: pointer;
+}
 
 .smartcoin-payment-16 {
 	display: block;
