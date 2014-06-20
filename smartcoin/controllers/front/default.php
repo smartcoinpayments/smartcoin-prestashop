@@ -21,7 +21,7 @@ class SmartCoinDefaultModuleFrontController extends ModuleFrontController {
 	public function validation() {
 		$smartcoin = new SmartCoin();
 		if ($smartcoin->active && Tools::getIsset('smartcoin_token')) {
-			$smartcoin->processPayment(Tools::getValue('smartcoin_token'));
+			$smartcoin->processPayment(Tools::getValue('smartcoin_token'),Tools::getValue('smartcoin_installments'));
 		}
 		else {
 			$this->context->cookie->__set("smartcoin_error", 'There was a problem with your payment');

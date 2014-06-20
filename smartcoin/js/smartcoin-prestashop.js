@@ -45,17 +45,18 @@ $(document).ready(function() {
 			$('.smartcoin-submit-button').attr('disabled', 'disabled'); /* Disable the submit button to prevent repeated clicks */
 
 			smartcoin_token_params = {
-				number: $('.smartcoin-card-number').val(),
-				cvc: $('.smartcoin-card-cvc').val(),
-				exp_month: month,
-				exp_year: year,
+				name: 			$('.smartcoin-card-name').val(),
+				number: 		$('.smartcoin-card-number').val(),
+				cvc: 			 $('.smartcoin-card-cvc').val(),
+				exp_month:  month,
+				exp_year: 	year,
 			};
 
 			/* Check if the billing address element are set and add them to the Token */
 			if (typeof smartcoin_billing_address != 'undefined') {
 				smartcoin_token_params.name = smartcoin_billing_address.firstname + ' ' + smartcoin_billing_address.lastname;
 				smartcoin_token_params.address_line1 = smartcoin_billing_address.address1;
-				smartcoin_token_params.address_zip = smartcoin_billing_address.postcode;
+				smartcoin_token_params.address_cep = smartcoin_billing_address.postcode;
 				smartcoin_token_params.address_country = smartcoin_billing_address.country;
 
 				if (typeof smartcoin_billing_address.address2 != 'undefined')

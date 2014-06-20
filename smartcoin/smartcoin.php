@@ -47,7 +47,7 @@
       $create_transaction_db = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'smartcoin_transaction` (`id_smartcoin_transaction` int(11) NOT NULL AUTO_INCREMENT,
 		  `type` enum(\'payment\',\'refund\') NOT NULL, `id_cart` int(10) unsigned NOT NULL, `id_order` int(10) unsigned NOT NULL, `id_transaction` varchar(32) NOT NULL,
       `amount` decimal(10,2) NOT NULL, `status` enum(\'paid\',\'unpaid\') NOT NULL, `currency` varchar(3) NOT NULL,
-      `cc_type` varchar(16) NOT NULL, `cc_exp` varchar(8) NOT NULL, `cc_last_digits` int(11) NOT NULL, `fee` decimal(10,2) NOT NULL,
+      `cc_type` varchar(16) NOT NULL, `cc_exp` varchar(8) NOT NULL, `cc_last_digits` int(11) NOT NULL, `installments` int(11) NOT NULL,`fee` decimal(10,2) NOT NULL,
       `mode` enum(\'live\',\'test\') NOT NULL, `date_add` datetime NOT NULL, `charge_back` tinyint(1) NOT NULL DEFAULT \'0\',
       PRIMARY KEY (`id_smartcoin_transaction`), KEY `idx_transaction` (`type`,`id_order`,`status`))
 		  ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1';
@@ -115,9 +115,9 @@
     /**
   	 * Process a payment
   	 *
-  	 * @param string $token SmartCoin Transaction ID (token)
+  	 * @param string $token SmartCoin Transaction ID (token) and installments
   	 */
-  	public function processPayment($token) {
+  	public function processPayment($token, $installments) {
   		/* If 1.4 and no backward, then leave */
   		if (!$this->backward)
   			return;
@@ -130,6 +130,7 @@
   			' '.(int)$this->context->cookie->id_customer.' - '.$this->l('PrestaShop Cart ID:').' '.(int)$this->context->cart->id);
 
   			$charge_details['card'] = $token;
+        $charge_details['installment'] = $installments;
 
   			$result_json = Charge::create($charge_details,$access_key);
 
@@ -183,7 +184,8 @@
   			$this->l('Currency:').' '. Tools::strtoupper($result_json->currency)."\n".
   			$this->l('Credit card:').' '.$result_json->card->type.' ('.$this->l('Exp.:').' '.$result_json->card->exp_month.'/'.$result_json->card->exp_year.')'."\n".
   			$this->l('Last 4 digits:').' '.sprintf('%04d', $result_json->card->last4).' ('.$this->l('CVC Check:').' '.($result_json->card->cvc_check == 'pass' ? $this->l('OK') : $this->l('NOT OK')).')'."\n".
-  			$this->l('Processing Fee:').' '.($result_json->fee * 0.01)."\n".
+  			$this->l('Installments:').' '. (int)count($result_json->installments)."\n".
+        $this->l('Processing Fee:').' '.($result_json->fee * 0.01)."\n".
   			$this->l('Mode:').' '.($result_json->livemode == 'true' ? $this->l('Live') : $this->l('Test'))."\n";
 
   			/* In case of successful payment, the address / zip-code can however fail */
@@ -223,11 +225,11 @@
   		if (isset($result_json->id))
   			Db::getInstance()->Execute('
   			INSERT INTO '._DB_PREFIX_.'smartcoin_transaction (type, id_cart, id_order,
-  			id_transaction, amount, status, currency, cc_type, cc_exp, cc_last_digits, fee, mode, date_add)
+  			id_transaction, amount, status, currency, cc_type, cc_exp, cc_last_digits, installments, fee, mode, date_add)
   			VALUES (\'payment\', '.(int)$this->context->cart->id.', '.(int)$this->currentOrder.', \''.pSQL($result_json->id).'\',
   			\''.($result_json->amount * 0.01).'\', \''.($result_json->paid == 'true' ? 'paid' : 'unpaid').'\', \''.pSQL($result_json->currency).'\',
   			\''.pSQL($result_json->card->type).'\', \''.(int)$result_json->card->exp_month.'/'.(int)$result_json->card->exp_year.'\', '.(int)$result_json->card->last4.',
-  			\''.($result_json->fee * 0.01).'\', \''.($result_json->livemode == 'true' ? 'live' : 'test').'\', NOW())');
+  			\''.(int)count($result_json->installments).'\', \''.($result_json->fee * 0.01).'\', \''.($result_json->livemode == 'true' ? 'live' : 'test').'\', NOW())');
 
   		/* Redirect the user to the order confirmation page / history */
   		if (_PS_VERSION_ < 1.5)
@@ -340,6 +342,7 @@
   				$this->l('Processed on:').' '.Tools::safeOutput($smartcoin_transaction_details['date_add']).'<br />'.
   				$this->l('Credit card:').' '.Tools::safeOutput($smartcoin_transaction_details['cc_type']).' ('.$this->l('Exp.:').' '.Tools::safeOutput($smartcoin_transaction_details['cc_exp']).')<br />'.
   				$this->l('Last 4 digits:').' '.sprintf('%04d', $smartcoin_transaction_details['cc_last_digits']).' <br />'.
+          $this->l('Installments:').' '.sprintf('%d',$smartcoin_transaction_details['installments']).'<br />'.
   				$this->l('Processing Fee:').' '.Tools::displayPrice($smartcoin_transaction_details['fee']).'<br /><br />'.
   				$this->l('Mode:').' <span style="font-weight: bold; color: '.($smartcoin_transaction_details['mode'] == 'live' ? 'green;">'.$this->l('Live') : '#CC0000;">'.$this->l('Test (You will not receive any payment, until you enable the "Live" mode)')).'</span>';
   			else

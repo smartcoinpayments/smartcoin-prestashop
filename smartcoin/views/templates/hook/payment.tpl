@@ -1,4 +1,4 @@
-<div class="payment_module smartcoin-payment-16">
+<div class="payment_module {if $smartcoin_ps_version < '1.5'}smartcoin-payment-15{/if}{if $smartcoin_ps_version > '1.5'}smartcoin-payment-16{/if}">
 	<h3 class="smartcoin_title">{l s='Pay by credit / ' mod='smartcoin'} <img alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/secure-icon.png" /></h3>
 	<div id="smartcoin-ajax-loader"><img src="{$module_dir|escape:htmlall:'UTF-8'}img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='smartcoin'}</div>
 	<form action="{$validation_url|escape:htmlall:'UTF-8'}" method="POST" id="smartcoin-payment-form" >
@@ -6,6 +6,8 @@
 
 			<a name="smartcoin_error" style="display:none"></a>
 		<div class="smartcoin-card-deleted"></div>
+		<label>{l s='Card Holder Name' mod='smartcoin'}</label><br />
+		<input type="text" size="20" autocomplete="off" class="smartcoin-card-name" /><br />
 		<label>{l s='Card Number' mod='smartcoin'}</label><br />
 		<input type="text" size="20" autocomplete="off" class="smartcoin-card-number" />
 			<img class="cc-icon disable" rel="visa" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-visa.png" />
@@ -14,7 +16,7 @@
 			<img class="cc-icon disable" rel="amex" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-amex.png" />
 			<img class="cc-icon disable" rel="jcb" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-jcb.png" />
 			<img class="cc-icon disable" rel="dinersclub" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-diners.png" />
-
+		<br />
 		<div class="block-left">
 			<label>{l s='CVC' mod='smartcoin'}</label><br />
 			<input type="text" size="4" autocomplete="off" class="smartcoin-card-cvc" />
@@ -51,6 +53,17 @@
             		{/for}
         </select>
 		<br />
+		<div class="block-left block-bottom">
+			<label>{l s='Installments' mod='smartcoin'}</label><br />
+			<select id="smartcoin_installments" name="smartcoin_installments" class="smartcoin-card-installments">
+				<option value=1>1</option>
+				<option value=2>2</option>
+				<option value=3>3</option>
+				<option value=4>4</option>
+				<option value=5>5</option>
+			</select>
+		</div>
+			<div class="clear"></div>
 		<button type="submit" class="smartcoin-submit-button">{l s='Submit Payment' mod='smartcoin'}</button>
 	</form>
 	<div id="smartcoin-translations">
