@@ -366,25 +366,27 @@
 
     /**
   	 * Load Javascripts and CSS related to the SmartCoin's module
-  	 * Only loaded during the checkout process
   	 *
   	 * @return string HTML/JS Content
   	 */
     public function hookHeader() {
+
+      $output = '';
   		/* Continue only if we are in the checkout process */
-  		if (Tools::getValue('controller') != 'order-opc' && (!($_SERVER['PHP_SELF'] == __PS_BASE_URI__.'order.php' || $_SERVER['PHP_SELF'] == __PS_BASE_URI__.'order-opc.php' || Tools::getValue('controller') == 'order' || Tools::getValue('controller') == 'orderopc' || Tools::getValue('step') == 3)))
-  			return;
+  		if (Tools::getValue('controller') == 'order-opc' || ($_SERVER['PHP_SELF'] == __PS_BASE_URI__.'order.php' || $_SERVER['PHP_SELF'] == __PS_BASE_URI__.'order-opc.php' || Tools::getValue('controller') == 'order' || Tools::getValue('controller') == 'orderopc' || Tools::getValue('step') == 3)) {
+        /* Load JS and CSS files through CCC */
+        $this->context->controller->addCSS($this->_path.'css/smartcoin-prestashop.css');
 
-  		/* Load JS and CSS files through CCC */
-  		$this->context->controller->addCSS($this->_path.'css/smartcoin-prestashop.css');
+        $output .= '
+        <script type="text/javascript" src="https://js.smartcoin.com.br/v1/smartcoin.js"></script>
+        <script type="text/javascript" src="https://js.smartcoin.com.br/v1/jquery.payment.js"></script>
+        <script type="text/javascript" src="'. $this->_path .'js/smartcoin-prestashop.js"></script>
+        <script type="text/javascript">
+          var smartcoin_api_key = \''.addslashes(Configuration::get('SMARTCOIN_MODE') ? Configuration::get('SMARTCOIN_API_KEY_LIVE') : Configuration::get('SMARTCOIN_API_KEY_TEST')).'\';
+        </script>';
+      }
 
-  		return '
-  		<script type="text/javascript" src="https://js.smartcoin.com.br/v1/smartcoin.js"></script>
-      <script type="text/javascript" src="https://js.smartcoin.com.br/v1/jquery.payment.js"></script>
-  		<script type="text/javascript" src="'. $this->_path .'js/smartcoin-prestashop.js"></script>
-  		<script type="text/javascript">
-  			var smartcoin_api_key = \''.addslashes(Configuration::get('SMARTCOIN_MODE') ? Configuration::get('SMARTCOIN_API_KEY_LIVE') : Configuration::get('SMARTCOIN_API_KEY_TEST')).'\';
-  		</script>';
+      return $output;
   	}
 
 
@@ -482,9 +484,9 @@
   		<div class="smartcoin-module-wrapper">
   			'.(Tools::isSubmit('SubmitSmartCoin') ? '<div class="conf confirmation">'.$this->l('Settings successfully saved').'<img src="http://www.prestashop.com/modules/'.$this->name.'.png?api_user='.urlencode($_SERVER['HTTP_HOST']).'" style="display: none;" /></div>' : '').'
   			<div class="smartcoin-module-header">
-  				<a href="https://smartcoin.com.br/signup" rel="external"><img src="'.$this->_path.'img/smartcoin-logo.gif" alt="smartcoin" class="smartcoin-logo" /></a>
+  				<a href="https://manage.smartcoin.com.br/signup" rel="external"><img src="'.$this->_path.'img/smartcoin-logo.gif" alt="smartcoin" class="smartcoin-logo" /></a>
   				<span class="smartcoin-module-intro">'.$this->l('SmartCoin makes it easy to start accepting credit cards on the web today.').'</span>
-  				<a href="https://smartcoin.com.br/signup" rel="external" class="smartcoin-module-create-btn"><span>'.$this->l('Create an Account').'</span></a>
+  				<a href="https://manage.smartcoin.com.br/signup" rel="external" class="smartcoin-module-create-btn"><span>'.$this->l('Create an Account').'</span></a>
   			</div>
   			<fieldset>
   				<legend><img src="'.$this->_path.'img/checks-icon.gif" alt="" />'.$this->l('Technical Checks').'</legend>
