@@ -544,19 +544,19 @@
   						<td align="center" valign="middle" colspan="2">
   							<table cellspacing="0" cellpadding="0" class="innerTable">
   								<tr>
-  									<td align="right" valign="middle">'.$this->l('Test Publishable Key').'</td>
+  									<td align="right" valign="middle">'.$this->l('Test API Key').'</td>
   									<td align="left" valign="middle"><input type="text" name="smartcoin_api_key_test" value="'.Tools::safeOutput(Configuration::get('SMARTCOIN_API_KEY_TEST')).'" /></td>
   									<td width="15"></td>
   									<td width="15" class="vertBorder"></td>
-  									<td align="left" valign="middle">'.$this->l('Live Publishable Key').'</td>
+  									<td align="left" valign="middle">'.$this->l('Live API Key').'</td>
   									<td align="left" valign="middle"><input type="text" name="ssmartcoin_api_key_live" value="'.Tools::safeOutput(Configuration::get('SMARTCOIN_API_KEY_LIVE')).'" /></td>
   								</tr>
   								<tr>
-  									<td align="right" valign="middle">'.$this->l('Test Secret Key').'</td>
+  									<td align="right" valign="middle">'.$this->l('Test API Secret').'</td>
   									<td align="left" valign="middle"><input type="password" name="smartcoin_secret_key_test" value="'.Tools::safeOutput(Configuration::get('SMARTCOIN_SECRET_KEY_TEST')).'" /></td>
   									<td width="15"></td>
   									<td width="15" class="vertBorder"></td>
-  									<td align="left" valign="middle">'.$this->l('Live Secret Key').'</td>
+  									<td align="left" valign="middle">'.$this->l('Live API Secret').'</td>
   									<td align="left" valign="middle"><input type="password" name="smartcoin_secret_key_live" value="'.Tools::safeOutput(Configuration::get('SMARTCOIN_SECRET_KEY_LIVE')).'" /></td>
   								</tr>
   							</table>
