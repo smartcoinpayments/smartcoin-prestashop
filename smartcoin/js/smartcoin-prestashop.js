@@ -53,6 +53,7 @@ $(document).ready(function() {
 			$('#smartcoin-ajax-loader').show();
 			$('.smartcoin-submit-button').attr('disabled', 'disabled'); /* Disable the submit button to prevent repeated clicks */
 
+			_user_id = ps_customer_email;
 			smartcoin_token_params = {
 				name: 			$('.smartcoin-card-name').val(),
 				number: 		$('.smartcoin-card-number').val(),
@@ -63,13 +64,13 @@ $(document).ready(function() {
 
 			/* Check if the billing address element are set and add them to the Token */
 			if (typeof smartcoin_billing_address != 'undefined') {
-				smartcoin_token_params.name = smartcoin_billing_address.firstname + ' ' + smartcoin_billing_address.lastname;
-				smartcoin_token_params.address_line1 = smartcoin_billing_address.address1;
+				smartcoin_token_params.address_line_1 = smartcoin_billing_address.address1;
 				smartcoin_token_params.address_cep = smartcoin_billing_address.postcode;
+				smartcoin_token_params.address_city = smartcoin_billing_address.city;
 				smartcoin_token_params.address_country = smartcoin_billing_address.country;
 
-				if (typeof smartcoin_billing_address.address2 != 'undefined')
-					smartcoin_token_params.address_line2 = smartcoin_billing_address.address2;
+				//if (typeof smartcoin_billing_address.address2 != 'undefined')
+				//	smartcoin_token_params.address_district = smartcoin_billing_address.address2;
 				if (typeof smartcoin_billing_address.state != 'undefined')
 					smartcoin_token_params.address_state = smartcoin_billing_address.state;
 			}
@@ -113,7 +114,7 @@ $(document).ready(function() {
 
 function smartcoin_response_handler(response) {
 	if (response.error) {
-		$('.smartcoin-payment-errors').text(response.error.message).fadeIn(1000);
+		$('.smartcoin-payment-errors').text(JSON.stringify(response)).fadeIn(1000);
 		$('.smartcoin-submit-button').removeAttr('disabled');
 		$('#smartcoin-payment-form').show();
 		$('#smartcoin-ajax-loader').hide();

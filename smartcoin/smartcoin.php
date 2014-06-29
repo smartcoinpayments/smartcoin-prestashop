@@ -74,6 +74,17 @@
   	 * @return string SmartCoin's Smarty template content
   	 */
     public function hookPayment($params) {
+      /* If the address check has been enabled by the merchant, we will transmitt the billing address to SmartCoin */
+  		if (isset($this->context->cart->id_address_invoice)) {
+  			$billing_address = new Address((int)$this->context->cart->id_address_invoice);
+  			if ($billing_address->id_state) {
+  				$state = new State((int)$billing_address->id_state);
+  				if (Validate::isLoadedObject($state))
+  					$billing_address->state = $state->iso_code;
+  			}
+  		}
+
+
       if (!empty($this->context->cookie->smartcoin_error)) {
   			$this->smarty->assign('smartcoin_error', $this->context->cookie->smartcoin_error);
   			$this->context->cookie->__set('smartcoin_error', null);
@@ -81,8 +92,14 @@
 
   		$this->smarty->assign('validation_url', (Configuration::get('PS_SSL_ENABLED') ? 'https' : 'http').'://'.$_SERVER['HTTP_HOST'].__PS_BASE_URI__.'index.php?process=validation&fc=module&module=smartcoin&controller=default');
   		$this->smarty->assign('smartcoin_ps_version', _PS_VERSION_);
+      $customer = new Customer((int)$this->context->cookie->id_customer);
 
-      return $this->display(__FILE__, './views/templates/hook/payment.tpl');
+      return '
+    		<script type="text/javascript">'.
+    			((isset($billing_address) && Validate::isLoadedObject($billing_address)) ? 'var smartcoin_billing_address = '. Tools::jsonEncode($billing_address).';' : '').'
+          var ps_customer_email = "'.$customer->email.'";
+    		</script>'
+        .$this->display(__FILE__, './views/templates/hook/payment.tpl');
     }
 
     /**
