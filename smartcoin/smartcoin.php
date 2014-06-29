@@ -370,20 +370,27 @@
   	 * @return string HTML/JS Content
   	 */
     public function hookHeader() {
-
-      $output = '';
+      $output = '<script type="text/javascript">
+                  var _smartcoin_api_key = "'.addslashes(Configuration::get('SMARTCOIN_MODE') ? Configuration::get('SMARTCOIN_API_KEY_LIVE') : Configuration::get('SMARTCOIN_API_KEY_TEST')).'";
+                  var headTag = document.getElementsByTagName("head")[0];
+                  var smartTag = document.createElement("script");
+                  smartTag.type = "text/javascript";
+                  smartTag.async = false;
+                  smartTag.src = "https://js.smartcoin.com.br/v1/smartcoin.js";
+                  headTag.appendChild(smartTag);
+                </script>';
   		/* Continue only if we are in the checkout process */
   		if (Tools::getValue('controller') == 'order-opc' || ($_SERVER['PHP_SELF'] == __PS_BASE_URI__.'order.php' || $_SERVER['PHP_SELF'] == __PS_BASE_URI__.'order-opc.php' || Tools::getValue('controller') == 'order' || Tools::getValue('controller') == 'orderopc' || Tools::getValue('step') == 3)) {
         /* Load JS and CSS files through CCC */
         $this->context->controller->addCSS($this->_path.'css/smartcoin-prestashop.css');
-
-        $output .= '
-        <script type="text/javascript" src="https://js.smartcoin.com.br/v1/smartcoin.js"></script>
-        <script type="text/javascript" src="https://js.smartcoin.com.br/v1/jquery.payment.js"></script>
-        <script type="text/javascript" src="'. $this->_path .'js/smartcoin-prestashop.js"></script>
-        <script type="text/javascript">
-          var smartcoin_api_key = \''.addslashes(Configuration::get('SMARTCOIN_MODE') ? Configuration::get('SMARTCOIN_API_KEY_LIVE') : Configuration::get('SMARTCOIN_API_KEY_TEST')).'\';
-        </script>';
+        $output .= '<script type="text/javascript">
+                    var headTag = document.getElementsByTagName("head")[0];
+                    var smartTag = document.createElement("script");
+                    smartTag.type = "text/javascript";
+                    smartTag.async = false;
+                    smartTag.src = "'. $this->_path .'js/smartcoin-prestashop.js";
+                    headTag.appendChild(smartTag);
+                  </script>';
       }
 
       return $output;
@@ -486,7 +493,7 @@
   			<div class="smartcoin-module-header">
   				<a href="https://manage.smartcoin.com.br/signup" rel="external"><img src="'.$this->_path.'img/smartcoin-logo.gif" alt="smartcoin" class="smartcoin-logo" /></a>
   				<span class="smartcoin-module-intro">'.$this->l('SmartCoin makes it easy to start accepting credit cards on the web today.').'</span>
-  				<a href="https://manage.smartcoin.com.br/signup" rel="external" class="smartcoin-module-create-btn"><span>'.$this->l('Create an Account').'</span></a>
+  				<a href="https://manage.smartcoin.com.br/signup" rel="external" target="_blank" class="smartcoin-module-create-btn"><span>'.$this->l('Create an Account').'</span></a>
   			</div>
   			<fieldset>
   				<legend><img src="'.$this->_path.'img/checks-icon.gif" alt="" />'.$this->l('Technical Checks').'</legend>

@@ -1,6 +1,6 @@
 $(document).ready(function() {
 	/* Set SmartCoin's api key */
-	SmartCoin.set_api_key(smartcoin_api_key);
+	SmartCoin.set_api_key(_smartcoin_api_key);
 
 	/* Determine the Credit Card Type */
 	$('.smartcoin-card-number').keyup(function() {
