@@ -1,13 +1,11 @@
 <div class="payment_module {if $smartcoin_ps_version < '1.5'}smartcoin-payment-15{/if}{if $smartcoin_ps_version > '1.5'}smartcoin-payment-16{/if}">
 	<h3 class="smartcoin_title">{l s='Pay by credit / ' mod='smartcoin'} <img alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/secure-icon.png" /></h3>
 	<div id="smartcoin-ajax-loader"><img src="{$module_dir|escape:htmlall:'UTF-8'}img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='smartcoin'}</div>
-	<form action="{$validation_url|escape:htmlall:'UTF-8'}" method="POST" id="smartcoin-payment-form" >
+	<form action="{$validation_url|escape:htmlall:'UTF-8'}" method="POST" id="smartcoin-payment-form" style="width: 50%; float: left;">
 		<div class="smartcoin-payment-errors">{if isset($smartcoin_error)}{$smartcoin_error|escape:htmlall:'UTF-8'}{/if}</div>
 
 			<a name="smartcoin_error" style="display:none"></a>
 		<div class="smartcoin-card-deleted"></div>
-		<label>{l s='Card Holder Name' mod='smartcoin'}</label><br />
-		<input type="text" size="20" autocomplete="off" class="smartcoin-card-name" /><br />
 		<label>{l s='Card Number' mod='smartcoin'}</label><br />
 		<input type="text" size="20" autocomplete="off" class="smartcoin-card-number" />
 			<img class="cc-icon disable" rel="visa" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-visa.png" />
@@ -17,6 +15,8 @@
 			<img class="cc-icon disable" rel="jcb" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-jcb.png" />
 			<img class="cc-icon disable" rel="dinersclub" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-diners.png" />
 		<br />
+		<label>{l s='Card Holder Name' mod='smartcoin'}</label><br />
+		<input type="text" size="20" autocomplete="off" class="smartcoin-card-name" /><br />
 		<div class="block-left">
 			<label>{l s='CVC' mod='smartcoin'}</label><br />
 			<input type="text" size="4" autocomplete="off" class="smartcoin-card-cvc" />
@@ -66,6 +66,8 @@
 			<div class="clear"></div>
 		<button type="submit" class="smartcoin-submit-button">{l s='Submit Payment' mod='smartcoin'}</button>
 	</form>
+	<div class="smartcoin-card-wrapper" ></div>
+	<div class="clear" style="clear: left;"></div>
 	<div id="smartcoin-translations">
 		<span id="smartcoin-wrong-cvc">{l s='Wrong CVC.' mod='smartcoin'}</span>
 		<span id="smartcoin-wrong-expiry">{l s='Wrong Credit Card Expiry date.' mod='smartcoin'}</span>

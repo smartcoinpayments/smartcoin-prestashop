@@ -2,6 +2,14 @@ $(document).ready(function() {
 	/* Set SmartCoin's api key */
 	SmartCoin.set_api_key(_smartcoin_api_key);
 
+	$('form#smartcoin-payment-form').card({
+		container: $('.smartcoin-card-wrapper'),
+		numberInput: 'input.smartcoin-card-number',
+    expiryInput: 'select.smartcoin-card-expiry-month,select.smartcoin-card-expiry-year',
+    cvcInput: 'input.smartcoin-card-cvc',
+    nameInput: 'input.smartcoin-card-name',
+	});
+
 	/* Determine the Credit Card Type */
 	$('.smartcoin-card-number').keyup(function() {
 		if ($(this).val().length >= 2) {
@@ -41,6 +49,7 @@ $(document).ready(function() {
 		else {
 			$('.smartcoin-payment-errors').hide();
 			$('#smartcoin-payment-form').hide();
+			$('.smartcoin-card-wrapper').hide();
 			$('#smartcoin-ajax-loader').show();
 			$('.smartcoin-submit-button').attr('disabled', 'disabled'); /* Disable the submit button to prevent repeated clicks */
 

@@ -382,8 +382,17 @@
   		/* Continue only if we are in the checkout process */
   		if (Tools::getValue('controller') == 'order-opc' || ($_SERVER['PHP_SELF'] == __PS_BASE_URI__.'order.php' || $_SERVER['PHP_SELF'] == __PS_BASE_URI__.'order-opc.php' || Tools::getValue('controller') == 'order' || Tools::getValue('controller') == 'orderopc' || Tools::getValue('step') == 3)) {
         /* Load JS and CSS files through CCC */
+        $this->context->controller->addCSS($this->_path.'css/smartcoin-card.css');
         $this->context->controller->addCSS($this->_path.'css/smartcoin-prestashop.css');
         $output .= '<script type="text/javascript">
+                      var headTag = document.getElementsByTagName("head")[0];
+                      var smartTag = document.createElement("script");
+                      smartTag.type = "text/javascript";
+                      smartTag.async = false;
+                      smartTag.src = "'. $this->_path .'js/smartcoin-card.js";
+                      headTag.appendChild(smartTag);
+                  </script>
+                  <script type="text/javascript">
                     var headTag = document.getElementsByTagName("head")[0];
                     var smartTag = document.createElement("script");
                     smartTag.type = "text/javascript";
