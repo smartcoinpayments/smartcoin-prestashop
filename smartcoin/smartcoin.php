@@ -82,6 +82,11 @@
   				if (Validate::isLoadedObject($state))
   					$billing_address->state = $state->iso_code;
   			}
+        if ($billing_address->id_country) {
+          $country = new Country((int)$billing_address->id_country);
+          if (Validate::isLoadedObject($country))
+            $billing_address->country = $country->iso_code;
+        }
   		}
 
 
