@@ -69,8 +69,8 @@ $(document).ready(function() {
 				smartcoin_token_params.address_city = smartcoin_billing_address.city;
 				smartcoin_token_params.address_country = smartcoin_billing_address.country;
 
-				//if (typeof smartcoin_billing_address.address2 != 'undefined')
-				//	smartcoin_token_params.address_district = smartcoin_billing_address.address2;
+				if (typeof smartcoin_billing_address.address2 != 'undefined')
+					smartcoin_token_params.address_district = smartcoin_billing_address.address2;
 				if (typeof smartcoin_billing_address.state != 'undefined')
 					smartcoin_token_params.address_state = smartcoin_billing_address.state;
 			}
