@@ -26,10 +26,10 @@ div.payment_module {
 	margin-bottom: 15px;
 }
 #smartcoin-payment-form input.smartcoin-card-name {
-	width: 210px;
+	width: 280px;
 }
 #smartcoin-payment-form input.smartcoin-card-number {
-	width: 210px;
+	width: 280px;
 }
 #smartcoin-payment-form input.smartcoin-card-cvc {
 }
@@ -66,6 +66,7 @@ div.cvc-info:hover {
 #smartcoin-payment-form img.cc-icon {
 	border: #CCCCCC solid 1px;
 	margin-right: 5px;
+	float: none;
 }
 
 .block-left {
@@ -171,4 +172,16 @@ a#smartcoin_error {
 }
 #uniform-smartcoin_save_token {
 	display: inline-block;
+}
+
+select.smartcoin-select {
+	width: initial;
+	display: initial;
+	background-color: #e2e1e1;
+	-webkit-appearance: menulist;
+}
+
+div.smartcoin-card-wrapper {
+	position: absolute;
+	margin-left: 370px;
 }

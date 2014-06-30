@@ -29,7 +29,7 @@
 		</div>
 		<div class="clear"></div>
 		<label>{l s='Expiration (MM/YYYY)' mod='smartcoin'}</label><br />
-		<select id="month" name="month" class="smartcoin-card-expiry-month">
+		<select id="month" name="month" class="smartcoin-card-expiry-month smartcoin-select">
 			<option value="01">{l s='January' mod='smartcoin'}</option>
 			<option value="02">{l s='February' mod='smartcoin'}</option>
 			<option value="03">{l s='March' mod='smartcoin'}</option>
@@ -44,7 +44,7 @@
 			<option value="12">{l s='December' mod='smartcoin'}</option>
 		</select>
 		<span> / </span>
-		<select id="year" name="year" class="smartcoin-card-expiry-year">
+		<select id="year" name="year" class="smartcoin-card-expiry-year smartcoin-select">
 			{assign var='startyear' value=$smarty.now|date_format:"%Y"}
             		{assign var='endyear' value=($smarty.now|date_format:"%Y" + 10)}
 
@@ -55,7 +55,7 @@
 		<br />
 		<div class="block-left block-bottom">
 			<label>{l s='Installments' mod='smartcoin'}</label><br />
-			<select id="smartcoin_installments" name="smartcoin_installments" class="smartcoin-card-installments">
+			<select id="smartcoin_installments" name="smartcoin_installments" class="smartcoin-card-installments smartcoin-select">
 				<option value=1>1</option>
 				<option value=2>2</option>
 				<option value=3>3</option>
