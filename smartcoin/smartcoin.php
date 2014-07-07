@@ -587,7 +587,7 @@
   									<td width="15"></td>
   									<td width="15" class="vertBorder"></td>
   									<td align="left" valign="middle">'.$this->l('Live API Key').'</td>
-  									<td align="left" valign="middle"><input type="text" name="ssmartcoin_api_key_live" value="'.Tools::safeOutput(Configuration::get('SMARTCOIN_API_KEY_LIVE')).'" /></td>
+  									<td align="left" valign="middle"><input type="text" name="smartcoin_api_key_live" value="'.Tools::safeOutput(Configuration::get('SMARTCOIN_API_KEY_LIVE')).'" /></td>
   								</tr>
   								<tr>
   									<td align="right" valign="middle">'.$this->l('Test API Secret').'</td>
