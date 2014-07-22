@@ -1,7 +1,9 @@
 <div class="payment_module {if $smartcoin_ps_version < '1.5'}smartcoin-payment-15{/if}{if $smartcoin_ps_version > '1.5'}smartcoin-payment-16{/if}">
 	<h3 class="smartcoin_title">{l s='Pay by credit / ' mod='smartcoin'} <img alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/secure-icon.png" /></h3>
+	<img src="{$module_dir|escape:htmlall:'UTF-8'}img/credit_cards_semAmexeBoleto.png" alt="" class="paymentCards">
+	<div class="clearing"></div>
 	<div id="smartcoin-ajax-loader"><img src="{$module_dir|escape:htmlall:'UTF-8'}img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='smartcoin'}</div>
-	<form action="{$validation_url|escape:htmlall:'UTF-8'}" method="POST" id="smartcoin-payment-form" style="width: 50%; float: left;">
+	<form action="{$validation_url|escape:htmlall:'UTF-8'}" method="POST" id="smartcoin-payment-form" style="width: 32%; float: left;">
 		<div class="smartcoin-payment-errors">{if isset($smartcoin_error)}{$smartcoin_error|escape:htmlall:'UTF-8'}{/if}</div>
 
 			<a name="smartcoin_error" style="display:none"></a>
@@ -63,8 +65,7 @@
 				<option value=5>5</option>
 			</select>
 		</div>
-			<div class="clear"></div>
-		<button type="submit" class="smartcoin-submit-button">{l s='Submit Payment' mod='smartcoin'}</button>
+		<button type="submit" class="smartcoin-submit-button bt-blue">{l s='Submit Payment' mod='smartcoin'}</button>
 	</form>
 	<div class="smartcoin-card-wrapper" ></div>
 	<div class="clear" style="clear: left;"></div>
