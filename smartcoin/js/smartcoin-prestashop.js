@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(window).load(function() {
 	/* Set SmartCoin's api key */
 	SmartCoin.set_api_key(_smartcoin_api_key);
 
