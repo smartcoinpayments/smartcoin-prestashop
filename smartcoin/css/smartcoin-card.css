@@ -201,7 +201,7 @@
 .card-container {
   -webkit-perspective: 1000px;
   perspective: 1000px;
-  width: 360px;
+  width: 320px;
   height: 210px;
   margin: auto;
   z-index: 1;

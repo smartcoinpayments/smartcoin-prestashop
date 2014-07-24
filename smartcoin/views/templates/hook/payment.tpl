@@ -3,7 +3,7 @@
 	<img src="{$module_dir|escape:htmlall:'UTF-8'}img/credit_cards_semAmexeBoleto.png" alt="" class="paymentCards">
 	<div class="clearing"></div>
 	<div id="smartcoin-ajax-loader"><img src="{$module_dir|escape:htmlall:'UTF-8'}img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='smartcoin'}</div>
-	<form action="{$validation_url|escape:htmlall:'UTF-8'}" method="POST" id="smartcoin-payment-form" style="width: 32%; float: left;">
+	<form action="{$validation_url|escape:htmlall:'UTF-8'}" method="POST" id="smartcoin-payment-form" >
 		<div class="smartcoin-payment-errors">{if isset($smartcoin_error)}{$smartcoin_error|escape:htmlall:'UTF-8'}{/if}</div>
 
 			<a name="smartcoin_error" style="display:none"></a>
