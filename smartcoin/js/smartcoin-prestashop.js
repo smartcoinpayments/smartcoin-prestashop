@@ -1,4 +1,5 @@
-$(window).load(function() {
+var smartcoin_form_interval;
+var smartcoin_setting_payment_card_form = function(){
 	/* Set SmartCoin's api key */
 	SmartCoin.set_api_key(_smartcoin_api_key);
 
@@ -110,9 +111,11 @@ $(window).load(function() {
 	/* Catch callback errors */
 	if ($('.smartcoin-payment-errors').text())
 		$('.smartcoin-payment-errors').fadeIn(1000);
-});
 
-function smartcoin_response_handler(response) {
+	window.clearInterval(smartcoin_form_interval);
+};
+
+var smartcoin_response_handler = function(response) {
 	if (response.error) {
 		$('.smartcoin-payment-errors').text(JSON.stringify(response)).fadeIn(1000);
 		$('.smartcoin-submit-button').removeAttr('disabled');
@@ -126,3 +129,12 @@ function smartcoin_response_handler(response) {
 		$('#smartcoin-payment-form').get(0).submit();
 	}
 }
+
+$(window).load(function() {
+	smartcoin_form_interval = setInterval(smartcoin_setting_payment_card_form,1000);
+});
+
+$('#cgv').click(function(event){
+	smartcoin_form_interval = setInterval(smartcoin_setting_payment_card_form,1000);
+});
+
