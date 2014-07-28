@@ -134,6 +134,15 @@
   	}
 
 
+    public function handler_msg_error($message) {
+      $msg = $message;
+      if(strpos($message,'Denied') > -1){
+        $msg = 'The payment was not complete. The issuer bank denied authorization.';
+      }
+
+      return $msg;
+    }
+
     /**
   	 * Process a payment
   	 *
@@ -155,6 +164,21 @@
         $charge_details['installment'] = $installments;
 
   			$result_json = Charge::create($charge_details,$access_key);
+
+
+        if($result_json->failure_code != Null){
+          $message = $result_json->failure_message;
+
+          if (class_exists('Logger'))
+            Logger::addLog($this->l('SmartCoin - Payment transaction failed').' '.$message, 1, null, 'Cart', (int)$this->context->cart->id, true);
+
+          $message = $this->handler_msg_error($result_json->failure_message);
+
+          $this->context->cookie->__set("smartcoin_error", $message);
+          $controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
+          $location = $this->context->link->getPageLink($controller).(strpos($controller, '?') !== false ? '&' : '?').'step=3#smartcoin_error';
+          header('Location: '.$location);          
+        }
 
   		// catch the smartcoin error the correct way.
       } catch(\SmartCoin\Error $e) {
