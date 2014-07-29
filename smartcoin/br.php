@@ -5,6 +5,7 @@ $_MODULE = array();
 $_MODULE['<{smartcoin}default-bootstrap>smartcoin_a755aca6366507f2d27866b75de3e54a'] = 'SmartCoin';
 $_MODULE['<{smartcoin}default-bootstrap>smartcoin_d6ffa8421d76779856e73036028dcfd9'] = 'Aceite pagamentos com SmartCoin';
 $_MODULE['<{smartcoin}default-bootstrap>smartcoin_5762e45b09a1c3ea9315f11775ca05e2'] = 'Aviso: Você tem certeza que deseja desinstalar este modulo?';
+$_MODULE['<{smartcoin}default-bootstrap>smartcoin_1c8627375734341edcee7625094f62a7'] = 'Pagamento não efetuado. O emissor não autorizou.';
 $_MODULE['<{smartcoin}default-bootstrap>smartcoin_22c6f06adec6c5334610bdcfb92fabe5'] = 'Id do Usuários do PrestaShope';
 $_MODULE['<{smartcoin}default-bootstrap>smartcoin_8e5f653542197f29181fc29851462107'] = 'Id o Carrinho do PrestaShope';
 $_MODULE['<{smartcoin}default-bootstrap>smartcoin_1b8706fb7343cc883056a3f69c2f29a3'] = 'SmartCoin - Transação de pagamento falhou';
@@ -85,8 +86,8 @@ $_MODULE['<{smartcoin}default-bootstrap>order-confirmation_fad1b32bfea488fd65a91
 $_MODULE['<{smartcoin}default-bootstrap>order-confirmation_0d4e007412611fa67ae987261c6ec921'] = 'Por favor, verifique novamente as informações do seu Cartão de Crédito e envie novamente. Sinta-se à vontade em entrar em contato para resolver esse problema.';
 $_MODULE['<{smartcoin}default-bootstrap>payment_6b36bbf4cdce362c1d87935caa11284b'] = 'Pagar com Cartão de Crédito';
 $_MODULE['<{smartcoin}default-bootstrap>payment_4d45dda9e5e627fc945732e529f08c36'] = 'Transação me progresso, espere por favor.';
-$_MODULE['<{smartcoin}default-bootstrap>payment_8dffa6260715e0be982a2312b2f10f3e'] = 'Nome do Portador do Cartão de Crédito';
 $_MODULE['<{smartcoin}default-bootstrap>payment_931d3a3ad177dd96a28c9642fec11b01'] = 'Número do Cartão de Crédito';
+$_MODULE['<{smartcoin}default-bootstrap>payment_8dffa6260715e0be982a2312b2f10f3e'] = 'Nome do Portador do Cartão de Crédito';
 $_MODULE['<{smartcoin}default-bootstrap>payment_5ea7f231296949070013bc43715aae01'] = 'CVC';
 $_MODULE['<{smartcoin}default-bootstrap>payment_66857eb58b980dc76185a8492df0c7c6'] = 'O que é isso?';
 $_MODULE['<{smartcoin}default-bootstrap>payment_95e9bdeeb3bb58a164f5829847308331'] = 'O CVC (Código de Validação do Cartão) é um código de 3 ou 4 digitos que fica na parte de trás dos cartões Visa, MasterCard e Discover e na parte da frente dos cartões American Express. ';

@@ -137,7 +137,7 @@
     public function handler_msg_error($message) {
       $msg = $message;
       if(strpos($message,'Denied') !== false){
-        $msg = 'The payment was not complete. The issuer bank denied authorization.';
+        $msg = $this->l('The payment was not complete. The issuer bank denied authorization.');
       }
 
       return $msg;
