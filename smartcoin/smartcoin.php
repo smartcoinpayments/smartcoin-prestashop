@@ -135,7 +135,7 @@
 
 
     public function handler_msg_error($message) {
-      $msg = $message;
+      $msg = $this->l('The payment was not complete.');
       if(strpos($message,'Denied') !== false){
         $msg = $this->l('The payment was not complete. The issuer bank denied authorization.');
       }
@@ -177,7 +177,8 @@
           $this->context->cookie->__set("smartcoin_error", $message);
           $controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
           $location = $this->context->link->getPageLink($controller).(strpos($controller, '?') !== false ? '&' : '?').'step=3#smartcoin_error';
-          header('Location: '.$location);          
+          header('Location: '.$location);
+          exit;         
         }
 
   		// catch the smartcoin error the correct way.
