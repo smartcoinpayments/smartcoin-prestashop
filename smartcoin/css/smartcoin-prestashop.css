@@ -15,7 +15,7 @@ div.payment_module {
 }
 #smartcoin-payment-form {
 	margin-top: 23px;
-	width: 48%;
+	width: 350px;
 	float: left;
 }
 #smartcoin-payment-form label {
@@ -216,3 +216,47 @@ div.smartcoin-card-wrapper {
 	float: left;
 	margin: 30px 0 0 20px;
 }
+
+/* #Media Queries
+================================================== */
+
+	@media only screen and (max-width: 991px) {
+		.smartcoin-card-wrapper {
+			display: none;
+		}
+		.block-bottom {
+			margin-right: 18px;
+		}
+		#smartcoin-payment-form .smartcoin-submit-button, #smartcoin-payment-form-cc .smartcoin-submit-button-cc {
+			margin: 5px 0 0;
+		}
+	}
+
+	@media only screen and (max-width: 520px) {
+		.smartcoin-payment-16 {
+			padding: 33px 40px 34px 25px;
+		}
+	}
+
+	@media only screen and (max-width: 415px) {
+		#smartcoin-payment-form {
+			width: 320px;
+		}
+	}
+
+	@media only screen and (min-width: 320px) and (max-width: 415px) {
+		#smartcoin-payment-form input.smartcoin-card-number {
+			width: 210px;
+		}
+		#smartcoin-payment-form input.smartcoin-card-name {
+			width: 210px;
+		}
+		.block-left {
+			float: none;
+			margin-bottom: 0px;
+		}
+		#smartcoin-payment-form .smartcoin-submit-button, #smartcoin-payment-form-cc .smartcoin-submit-button-cc {
+			display: block;
+		}
+
+	}
