@@ -16,6 +16,7 @@
 			<img class="cc-icon disable" rel="amex" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-amex.png" />
 			<img class="cc-icon disable" rel="jcb" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-jcb.png" />
 			<img class="cc-icon disable" rel="dinersclub" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-diners.png" />
+			<img class="cc-icon disable" rel="elo" alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/cc-elo.png" />
 		<br />
 		<label>{l s='Card Holder Name' mod='smartcoin'}</label><br />
 		<input type="text" size="20" autocomplete="off" class="smartcoin-card-name" /><br />
