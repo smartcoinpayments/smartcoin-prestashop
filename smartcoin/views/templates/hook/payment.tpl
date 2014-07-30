@@ -1,7 +1,8 @@
 <div class="payment_module {if $smartcoin_ps_version < '1.5'}smartcoin-payment-15{/if}{if $smartcoin_ps_version > '1.5'}smartcoin-payment-16{/if}">
 	<h3 class="smartcoin_title">{l s='Pay by credit / ' mod='smartcoin'} <img alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/secure-icon.png" /></h3>
-	<img src="{$module_dir|escape:htmlall:'UTF-8'}img/credit_cards_semAmexeBoleto.png" alt="" class="paymentCards">
-	<div class="clearing"></div>
+	<div class="cc-wrap clearing">
+		<img src="{$module_dir|escape:htmlall:'UTF-8'}img/credit-cards.svg" onerror="this.src={$module_dir|escape:htmlall:'UTF-8'}img/credit-cards.png" alt="" class="paymentCards">
+	</div>
 	<div id="smartcoin-ajax-loader"><img src="{$module_dir|escape:htmlall:'UTF-8'}img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='smartcoin'}</div>
 	<form action="{$validation_url|escape:htmlall:'UTF-8'}" method="POST" id="smartcoin-payment-form" >
 		<div class="smartcoin-payment-errors">{if isset($smartcoin_error)}{$smartcoin_error|escape:htmlall:'UTF-8'}{/if}</div>

@@ -139,9 +139,15 @@ img.enable {
 .bt-blue:hover,
 .bt-blue:focus { background: #328AC3; color: #FFF; }
 
+div.cc-wrap {
+	display: block;
+	width: 170px;
+	overflow: hidden;
+}
+
 img.paymentCards {
 	display: inline-block;
-	margin: 0;
+	margin: 0 0 0 -5px;
 }
 
 div.smartcoin-payment-errors {
