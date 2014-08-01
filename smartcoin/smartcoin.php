@@ -103,6 +103,8 @@
     		<script type="text/javascript">'.
     			((isset($billing_address) && Validate::isLoadedObject($billing_address)) ? 'var smartcoin_billing_address = '. Tools::jsonEncode($billing_address).';' : '').'
           var ps_customer_email = "'.$customer->email.'";
+          if(typeof smartcoin_setting_payment_card_form != "undefined")
+            smartcoin_setting_payment_card_form();
     		</script>'
         .$this->display(__FILE__, './views/templates/hook/payment.tpl');
     }
