@@ -18,10 +18,10 @@ var smartcoin_setting_payment_card_form = function(){
 			$('.cc-icon').removeClass('enable');
 			$('.cc-icon').removeClass('disable');
 			$('.cc-icon').each(function() {
-				if ($(this).attr('rel') == smartcoin_card_type)
-					$(this).addClass('enable');
-				else
-					$(this).addClass('disable');
+			if ($(this).attr('rel') == smartcoin_card_type)
+				$(this).addClass('enable');
+			else
+				$(this).addClass('disable');
 			});
 		}
 		else {
@@ -30,22 +30,16 @@ var smartcoin_setting_payment_card_form = function(){
 		}
 	});
 
-	$('#smartcoin-payment-form-cc').submit(function(event) {
-		$('.smartcoin-payment-errors').hide();
-		$('#smartcoin-payment-form-cc').hide();
-		$('#smartcoin-ajax-loader').show();
-		$('.smartcoin-submit-button-cc').attr('disabled', 'disabled'); /* Disable the submit button to prevent repeated clicks */
-	});
-
 	$('#smartcoin-payment-form').submit(function(event) {
-
 		var month = ($('.smartcoin-card-expiry-month option:selected').val()); // this is the easiest way to check selected in mobile browsers and this will work in desktop as well
 		var year  = ($('.smartcoin-card-expiry-year option:selected').val()); // this is the easiest way to check selected in mobile browsers and this will work in desktop as well
 		if (!$.payment.validateCardNumber($('.smartcoin-card-number').val()))
 			$('.smartcoin-payment-errors').text($('#smartcoin-wrong-card').text() + ' ' + $('#smartcoin-please-fix').text());
+		else if (!$('.smartcoin-card-name').val().length > 0)
+			$('.smartcoin-payment-errors').text($('#smartcoin-wrong-name').text() + ' ' + $('#smartcoin-please-fix').text());
 		else if (!$.payment.validateCardExpiry(month, year))
 			$('.smartcoin-payment-errors').text($('#smartcoin-wrong-expiry').text() + ' ' + $('#smartcoin-please-fix').text());
-		else if (!$.payment.validateCardCVC($('.smartcoin-card-cvc').val()))
+		else if (!$.payment.validateCardCVC($('.smartcoin-card-cvc').val(),$.payment.cardType($('.smartcoin-card-number').val())))
 			$('.smartcoin-payment-errors').text($('#smartcoin-wrong-cvc').text() + ' ' + $('#smartcoin-please-fix').text());
 		else {
 			$('.smartcoin-payment-errors').hide();

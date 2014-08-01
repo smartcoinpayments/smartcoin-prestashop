@@ -75,6 +75,7 @@
 		<span id="smartcoin-wrong-cvc">{l s='Wrong CVC.' mod='smartcoin'}</span>
 		<span id="smartcoin-wrong-expiry">{l s='Wrong Credit Card Expiry date.' mod='smartcoin'}</span>
 		<span id="smartcoin-wrong-card">{l s='Wrong Credit Card number.' mod='smartcoin'}</span>
+		<span id="smartcoin-wrong-name">{l s='The Credit Card name cannot be blank.' mod='smartcoin'}</span>
 		<span id="smartcoin-please-fix">{l s='Please fix it and submit your payment again.' mod='smartcoin'}</span>
 		<span id="smartcoin-card-del">{l s='Your Credit Card has been successfully deleted, please enter a new Credit Card:' mod='smartcoin'}</span>
 		<span id="smartcoin-card-del-error">{l s='An error occured while trying to delete this Credit card. Please contact us.' mod='smartcoin'}</span>
