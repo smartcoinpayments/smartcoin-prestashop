@@ -110,6 +110,7 @@ $_MODULE['<{smartcoin}default-bootstrap>payment_821cdce7e19008a18c3089781c783249
 $_MODULE['<{smartcoin}default-bootstrap>payment_41b5bd3ac64dc1d8a3b11486c0283374'] = 'CVC errado.';
 $_MODULE['<{smartcoin}default-bootstrap>payment_75f834f9007dbad0bcd184b8c7233898'] = 'Data de expiração do Cartão de Crédito está errada.';
 $_MODULE['<{smartcoin}default-bootstrap>payment_a1cee963b0db73564674790ed71bfac3'] = 'Número do Cartão de Crédito está errado.';
+$_MODULE['<{smartcoin}default-bootstrap>payment_5ca64c13d2d324a678004299696a3aa5'] = 'O nome do portador do cartão de crédito não pode estar em branco.';
 $_MODULE['<{smartcoin}default-bootstrap>payment_1b2fc950e7bc5c8cbf3a5fd0796929d3'] = 'Por favor, corrija os erros e realize o pagamento novamente.';
 $_MODULE['<{smartcoin}default-bootstrap>payment_8cd55976df404786fda3244c0bbae519'] = 'O seu Cartão de Crédito foi deletado com sucesso. Insira um novo Cartão de Crédito.';
 $_MODULE['<{smartcoin}default-bootstrap>payment_db553023bd67198667579e7561650093'] = 'Um erro aconteceu quando tentava deletar o seu Cartão de Crédito. Por favor, entre em contato conosco.';
