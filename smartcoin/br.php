@@ -86,7 +86,7 @@ $_MODULE['<{smartcoin}default-bootstrap>order-confirmation_46d82042b6339d95b044b
 $_MODULE['<{smartcoin}default-bootstrap>order-confirmation_fad1b32bfea488fd65a915e20f6e96df'] = 'Desculpe-nos, infelizmente ocorreu um erro durante a transação.';
 $_MODULE['<{smartcoin}default-bootstrap>order-confirmation_0d4e007412611fa67ae987261c6ec921'] = 'Por favor, verifique novamente as informações do seu Cartão de Crédito e envie novamente. Sinta-se à vontade em entrar em contato para resolver esse problema.';
 $_MODULE['<{smartcoin}default-bootstrap>payment_6b36bbf4cdce362c1d87935caa11284b'] = 'Pagar com Cartão de Crédito';
-$_MODULE['<{smartcoin}default-bootstrap>payment_4d45dda9e5e627fc945732e529f08c36'] = 'Transação me progresso, espere por favor.';
+$_MODULE['<{smartcoin}default-bootstrap>payment_4d45dda9e5e627fc945732e529f08c36'] = 'Transação em progresso, espere por favor.';
 $_MODULE['<{smartcoin}default-bootstrap>payment_931d3a3ad177dd96a28c9642fec11b01'] = 'Número do Cartão de Crédito';
 $_MODULE['<{smartcoin}default-bootstrap>payment_8dffa6260715e0be982a2312b2f10f3e'] = 'Nome do Portador do Cartão de Crédito';
 $_MODULE['<{smartcoin}default-bootstrap>payment_5ea7f231296949070013bc43715aae01'] = 'CVC';
