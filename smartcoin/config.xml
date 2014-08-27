@@ -2,9 +2,9 @@
 <module>
 	<name>smartcoin</name>
 	<displayName><![CDATA[SmartCoin]]></displayName>
-	<version><![CDATA[0.1.15]]></version>
-	<description><![CDATA[Accept payments with SmartCoin]]></description>
-	<author><![CDATA[SmartCoin LTDA.]]></author>
+	<version><![CDATA[0.1.16]]></version>
+	<description><![CDATA[Accept payments with Smartcoin]]></description>
+	<author><![CDATA[Smartcoin LTDA.]]></author>
 	<tab><![CDATA[payments_gateways]]></tab>
 	<confirmUninstall>Warning: Are you sure you want uninstall this module?</confirmUninstall>
 	<is_configurable>1</is_configurable>
