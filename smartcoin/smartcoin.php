@@ -13,8 +13,8 @@
 
       parent::__construct();
 
-      $this->displayName = $this->l('SmartCoin');
-      $this->description = $this->l('Accept payments with SmartCoin');
+      $this->displayName = $this->l('Smartcoin');
+      $this->description = $this->l('Accept payments with Smartcoin');
       $this->confirmUninstall = $this->l('Warning: Are you sure you want uninstall this module?');
       $this->backward = true;
 
@@ -172,15 +172,9 @@
           $message = $result_json->failure_message;
 
           if (class_exists('Logger'))
-            Logger::addLog($this->l('SmartCoin - Payment transaction failed').' '.$message, 1, null, 'Cart', (int)$this->context->cart->id, true);
+            Logger::addLog($this->l('Smartcoin - Payment transaction failed').' '.$message, 1, null, 'Cart', (int)$this->context->cart->id, true);
 
           $message = $this->handler_msg_error($result_json->failure_message);
-
-          $this->context->cookie->__set("smartcoin_error", $message);
-          $controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
-          $location = $this->context->link->getPageLink($controller).(strpos($controller, '?') !== false ? '&' : '?').'step=3#smartcoin_error';
-          header('Location: '.$location);
-          exit;         
         }
 
   		// catch the smartcoin error the correct way.
@@ -191,7 +185,7 @@
   			$message = $err['message'];
 
   			if (class_exists('Logger'))
-  				Logger::addLog($this->l('SmartCoin - Payment transaction failed').' '.$message, 1, null, 'Cart', (int)$this->context->cart->id, true);
+  				Logger::addLog($this->l('Smartcoin - Payment transaction failed').' '.$message, 1, null, 'Cart', (int)$this->context->cart->id, true);
   			$this->context->cookie->__set("smartcoin_error", 'There was a problem with your payment');
   			$controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
   			$location = $this->context->link->getPageLink($controller).(strpos($controller, '?') !== false ? '&' : '?').'step=3#smartcoin_error';
@@ -226,7 +220,7 @@
 
   			$order_status = (int)Configuration::get('SMARTCOIN_PAYMENT_ORDER_STATUS');
   			$message = $this->l('SmartCoin Transaction Details:')."\n\n".
-  			$this->l('SmartCoin Transaction ID:').' '.$result_json->id."\n".
+  			$this->l('Smartcoin Transaction ID:').' '.$result_json->id."\n".
   			$this->l('Amount:').' '.($result_json->amount * 0.01)."\n".
   			$this->l('Status:').' '.($result_json->paid == 'true' ? $this->l('Paid') : $this->l('Unpaid'))."\n".
   			$this->l('Processed on:').' '.strftime('%Y-%m-%d %H:%M:%S', $result_json->created)."\n".
@@ -312,7 +306,7 @@
   		catch (Exception $e) {
   			$this->_errors['smartcoin_refund_error'] = $e->getMessage();
   			if (class_exists('Logger'))
-  				Logger::addLog($this->l('SmartCoin - Refund transaction failed').' '.$e->getMessage(), 2, null, 'Cart', (int)$this->context->cart->id, true);
+  				Logger::addLog($this->l('Smartcoin - Refund transaction failed').' '.$e->getMessage(), 2, null, 'Cart', (int)$this->context->cart->id, true);
   		}
 
   		/* Store the refund details */
