@@ -7,7 +7,7 @@
     public function __construct() {
       $this->name = 'smartcoin';
       $this->tab = "payments_gateways";
-      $this->version = '0.1.17';
+      $this->version = '0.2.0';
       $this->author = "SmartCoin LTDA.";
       $this->need_instance = 0;
 
@@ -30,13 +30,48 @@
       $ret = parent::install() && $this->registerHook('payment') && $this->registerHook('header') &&
             $this->registerHook('paymentReturn') && $this->registerHook('backOfficeHeader') &&
             $this->installDB() && Configuration::updateValue('SMARTCOIN_MODE', 0) &&
-            Configuration::updateValue('SMARTCOIN_PENDING_ORDER_STATUS', (int)Configuration::get('PS_OS_PAYMENT')) &&
+            createSmartcoinPendingOrderStatus() &&
         		Configuration::updateValue('SMARTCOIN_PAYMENT_ORDER_STATUS', (int)Configuration::get('PS_OS_PAYMENT')) &&
         		Configuration::updateValue('SMARTCOIN_CHARGEBACKS_ORDER_STATUS', (int)Configuration::get('PS_OS_ERROR'));
 
       return $ret;
     }
 
+    public function createSmartcoinPendingOrderStatus() {
+      $order_state = new OrderState();
+      $order_state->module_name = 'smartcoin';
+      $order_state->send_email = true;
+      $order_state->color = 'DarkOrange';
+      $order_state->hidden = false;
+      $order_state->delivery = false;
+      $order_state->logable = false;
+      $order_state->invoice = false;
+
+      foreach (Language::getLanguages(false) as $language) {
+        $order_state->name[(int) $language['id_lang']] = 'Awaiting Payment';
+        $order_state->template[$language['id_lang']] = 'awaiting_payment';
+
+        $template = _PS_MAIL_DIR_.$language['iso_code'].'/awaiting_payment.html';    
+        if (!file_exists($template)) {
+            $templateToCopy = _PS_ROOT_DIR_ . '/modules/smartcoin/mail/awaiting_payment.html';
+            copy($templateToCopy, $template);
+        }
+      }
+      
+      if (version_compare(_PS_VERSION_, '1.5', '>')) {
+          $order_state->unremovable = false;
+          $order_state->shipped = false;
+          $order_state->paid = false;
+      }
+      $order_state->add();
+
+      $file = _PS_ROOT_DIR_ . '/img/os/' . (int) $order_state->id . '.gif';
+      $image = _PS_ROOT_DIR_ . '/modules/smartcoin/img/pending-icon.gif';
+      copy($image, $file);
+
+      Configuration::updateValue('SMARTCOIN_PENDING_ORDER_STATUS', $order_state->id);
+      return $order_state;
+    }
 
     /**
   	 * SmartCoin's module database tables installation
@@ -46,8 +81,8 @@
     public function installDB() {
       $create_transaction_db = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'smartcoin_transaction` (`id_smartcoin_transaction` int(11) NOT NULL AUTO_INCREMENT,
 		  `type` enum(\'payment\',\'refund\') NOT NULL, `id_cart` int(10) unsigned NOT NULL, `id_order` int(10) unsigned NOT NULL, `id_transaction` varchar(32) NOT NULL,
-      `amount` decimal(10,2) NOT NULL, `status` enum(\'paid\',\'unpaid\') NOT NULL, `currency` varchar(3) NOT NULL,
-      `cc_type` varchar(16) NOT NULL, `cc_exp` varchar(8) NOT NULL, `cc_last_digits` int(11) NOT NULL, `installments` int(11) NOT NULL,`fee` decimal(10,2) NOT NULL,
+      `amount` decimal(10,2) NOT NULL, `status` enum(\'paid\',\'unpaid\') NOT NULL, `currency` varchar(3) NOT NULL, `charge_type` varchar(32) NOT NULL DEFAULT \'credit_card\',
+      `cc_type` varchar(16), `cc_exp` varchar(8), `cc_last_digits` int(11), `installments` int(11), `bank_slip_bar_code` varchar(256), `bank_slip_link` varchar(256),`fee` decimal(10,2) NOT NULL,
       `mode` enum(\'live\',\'test\') NOT NULL, `date_add` datetime NOT NULL, `charge_back` tinyint(1) NOT NULL DEFAULT \'0\',
       PRIMARY KEY (`id_smartcoin_transaction`), KEY `idx_transaction` (`type`,`id_order`,`status`))
 		  ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1';
@@ -103,8 +138,8 @@
     		<script type="text/javascript">'.
     			((isset($billing_address) && Validate::isLoadedObject($billing_address)) ? 'var smartcoin_billing_address = '. Tools::jsonEncode($billing_address).';' : '').'
           var ps_customer_email = "'.$customer->email.'";
-          if(typeof smartcoin_setting_payment_card_form != "undefined")
-            smartcoin_setting_payment_card_form();
+          if(typeof smartcoin_settings_payments != "undefined")
+            smartcoin_settings_payments();
     		</script>'
         .$this->display(__FILE__, './views/templates/hook/payment.tpl');
     }
@@ -119,8 +154,11 @@
   			return false;
 
   		if ($params['objOrder'] && Validate::isLoadedObject($params['objOrder']) && isset($params['objOrder']->valid))
+        $smartcoin_transaction_details = Db::getInstance()->getRow('SELECT * FROM '._DB_PREFIX_.'smartcoin_transaction WHERE id_order = '.(int)$params['objOrder']->id .' AND type = \'payment\'');
 
-  			$this->smarty->assign('smartcoin_order', array('reference' => isset($params['objOrder']->reference) ? $params['objOrder']->reference : '#'.sprintf('%06d', $params['objOrder']->id), 'valid' => $params['objOrder']->valid));
+  			$this->smarty->assign('smartcoin_order', array('reference' => isset($params['objOrder']->reference) ? $params['objOrder']->reference : '#'.sprintf('%06d', $params['objOrder']->id),
+                      'valid' => $params['objOrder']->valid, 'bank_slip_bar_code' => $smartcoin_transaction_details['bank_slip_bar_code'],
+                      'bank_slip_link' => $smartcoin_transaction_details['bank_slip_link']));
 
   			// added this so we could present a better/meaningful message to the customer when the charge suceeds, but verifications have failed.
   			$pendingOrderStatus = (int)Configuration::get('SMARTCOIN_PENDING_ORDER_STATUS');
@@ -150,7 +188,7 @@
   	 *
   	 * @param string $token SmartCoin Transaction ID (token) and installments
   	 */
-  	public function processPayment($token, $installments) {
+  	public function processPayment($token=null, $installments=1, $charge_type=null) {
   		/* If 1.4 and no backward, then leave */
   		if (!$this->backward)
   			return;
@@ -159,14 +197,19 @@
   		$access_key = Configuration::get('SMARTCOIN_MODE') ? Configuration::get('SMARTCOIN_API_KEY_LIVE') .':'. Configuration::get('SMARTCOIN_SECRET_KEY_LIVE') : Configuration::get('SMARTCOIN_API_KEY_TEST') .':'. Configuration::get('SMARTCOIN_SECRET_KEY_TEST');
 
   		try {
-  			$charge_details = array('amount' => $this->context->cart->getOrderTotal() * 100, 'currency' => $this->context->currency->iso_code, 'description' => $this->l('PrestaShop Customer ID:').
-  			' '.(int)$this->context->cookie->id_customer.' - '.$this->l('PrestaShop Cart ID:').' '.(int)$this->context->cart->id);
-
-  			$charge_details['card'] = $token;
-        $charge_details['installment'] = $installments;
+        $charge_details = array();
+        if($charge_type === 'bank_slip'){
+          $charge_details = array('amount' => $this->context->cart->getOrderTotal() * 100, 'currency' => $this->context->currency->iso_code, 'description' => $this->l('PrestaShop Customer ID:').
+        ' '.(int)$this->context->cookie->id_customer.' - '.$this->l('PrestaShop Cart ID:').' '.(int)$this->context->cart->id);
+          $charge_details['type'] = $charge_type;
+        }else{
+          $charge_details = array('amount' => $this->context->cart->getOrderTotal() * 100, 'currency' => $this->context->currency->iso_code, 'description' => $this->l('PrestaShop Customer ID:').
+        ' '.(int)$this->context->cookie->id_customer.' - '.$this->l('PrestaShop Cart ID:').' '.(int)$this->context->cart->id);  
+          $charge_details['card'] = $token;
+          $charge_details['installment'] = $installments;
+        }
 
   			$result_json = Charge::create($charge_details,$access_key);
-
 
         if($result_json->failure_code != Null){
           $message = $result_json->failure_message;
@@ -219,15 +262,27 @@
         }
 
   			$order_status = (int)Configuration::get('SMARTCOIN_PAYMENT_ORDER_STATUS');
+        if($charge_type === 'bank_slip'){
+          $order_status = (int)Configuration::get('SMARTCOIN_PENDING_ORDER_STATUS');
+        }
+
+        $payment_message = '';
+        if($charge_type === 'bank_slip'){
+          $payment_message = $this->l('Bank Slip (bar code):').' '. $result_json->bank_slip->bar_code ."\n".
+          $this->l('Bank Slip (link):').' '. $result_json->bank_slip->link ."\n";
+        }else{
+          $payment_message = $this->l('Credit card:').' '.$result_json->card->type.' ('.$this->l('Exp.:').' '.$result_json->card->exp_month.'/'.$result_json->card->exp_year.')'."\n".
+          $this->l('Last 4 digits:').' '.sprintf('%04d', $result_json->card->last4).' ('.$this->l('CVC Check:').' '.($result_json->card->cvc_check == 'pass' ? $this->l('OK') : $this->l('NOT OK')).')'."\n".
+          $this->l('Installments:').' '. (int)count($result_json->installments)."\n";
+        }
+
   			$message = $this->l('SmartCoin Transaction Details:')."\n\n".
   			$this->l('Smartcoin Transaction ID:').' '.$result_json->id."\n".
   			$this->l('Amount:').' '.($result_json->amount * 0.01)."\n".
   			$this->l('Status:').' '.($result_json->paid == 'true' ? $this->l('Paid') : $this->l('Unpaid'))."\n".
   			$this->l('Processed on:').' '.strftime('%Y-%m-%d %H:%M:%S', $result_json->created)."\n".
   			$this->l('Currency:').' '. Tools::strtoupper($result_json->currency)."\n".
-  			$this->l('Credit card:').' '.$result_json->card->type.' ('.$this->l('Exp.:').' '.$result_json->card->exp_month.'/'.$result_json->card->exp_year.')'."\n".
-  			$this->l('Last 4 digits:').' '.sprintf('%04d', $result_json->card->last4).' ('.$this->l('CVC Check:').' '.($result_json->card->cvc_check == 'pass' ? $this->l('OK') : $this->l('NOT OK')).')'."\n".
-  			$this->l('Installments:').' '. (int)count($result_json->installments)."\n".
+        $payment_message .
         $this->l('Processing Fee:').' '.($result_json->fee * 0.01)."\n".
   			$this->l('Mode:').' '.($result_json->livemode == 'true' ? $this->l('Live') : $this->l('Test'))."\n";
 
@@ -266,14 +321,24 @@
 
   		/* Store the transaction details */
   		if (isset($result_json->id))
-  			Db::getInstance()->Execute('
-  			INSERT INTO '._DB_PREFIX_.'smartcoin_transaction (type, id_cart, id_order,
-  			id_transaction, amount, status, currency, cc_type, cc_exp, cc_last_digits, installments, fee, mode, date_add)
-  			VALUES (\'payment\', '.(int)$this->context->cart->id.', '.(int)$this->currentOrder.', \''.pSQL($result_json->id).'\',
-  			\''.($result_json->amount * 0.01).'\', \''.($result_json->paid == 'true' ? 'paid' : 'unpaid').'\', \''.pSQL($result_json->currency).'\',
-  			\''.pSQL($result_json->card->type).'\', \''.(int)$result_json->card->exp_month.'/'.(int)$result_json->card->exp_year.'\', '.(int)$result_json->card->last4.',
-  			\''.(int)count($result_json->installments).'\', \''.($result_json->fee * 0.01).'\', \''.($result_json->livemode == 'true' ? 'live' : 'test').'\', NOW())');
-
+        if($charge_type === 'bank_slip'){
+          $sql = '
+          INSERT INTO '._DB_PREFIX_.'smartcoin_transaction (type, id_cart, id_order,
+          id_transaction, amount, status, currency, charge_type, bank_slip_bar_code, bank_slip_link, fee, mode, date_add)
+          VALUES (\'payment\', '.(int)$this->context->cart->id.', '.(int)$this->currentOrder.', \''.pSQL($result_json->id).'\',
+          \''.($result_json->amount * 0.01).'\', \''.($result_json->paid == 'true' ? 'paid' : 'unpaid').'\', \''.pSQL($result_json->currency).'\',
+          \''.$charge_type.'\', \''.$result_json->bank_slip->bar_code.'\', \''.$result_json->bank_slip->link.'\', \''.($result_json->fee * 0.01).'\', \''.($result_json->livemode == 'true' ? 'live' : 'test').'\', NOW())';
+          error_log($sql);
+          Db::getInstance()->Execute($sql);
+        }else{
+    			Db::getInstance()->Execute('
+    			INSERT INTO '._DB_PREFIX_.'smartcoin_transaction (type, id_cart, id_order,
+    			id_transaction, amount, status, currency, cc_type, cc_exp, cc_last_digits, installments, fee, mode, date_add)
+    			VALUES (\'payment\', '.(int)$this->context->cart->id.', '.(int)$this->currentOrder.', \''.pSQL($result_json->id).'\',
+    			\''.($result_json->amount * 0.01).'\', \''.($result_json->paid == 'true' ? 'paid' : 'unpaid').'\', \''.pSQL($result_json->currency).'\',
+    			\''.pSQL($result_json->card->type).'\', \''.(int)$result_json->card->exp_month.'/'.(int)$result_json->card->exp_year.'\', '.(int)$result_json->card->last4.',
+    			\''.(int)count($result_json->installments).'\', \''.($result_json->fee * 0.01).'\', \''.($result_json->livemode == 'true' ? 'live' : 'test').'\', NOW())');
+        }
   		/* Redirect the user to the order confirmation page / history */
   		if (_PS_VERSION_ < 1.5)
   			$redirect = __PS_BASE_URI__.'order-confirmation.php?id_cart='.(int)$this->context->cart->id.'&id_module='.(int)$this->id.'&id_order='.(int)$this->currentOrder.'&key='.$this->context->customer->secure_key;
@@ -352,7 +417,7 @@
       /* Check if the order was paid with SmartCoin and display the transaction details */
   		if(Db::getInstance()->getValue('SELECT module FROM '._DB_PREFIX_.'orders WHERE id_order = '.(int)Tools::getValue('id_order')) == $this->name) {
   			/* Get the transaction details */
-  			$smartcoin_transaction_details = Db::getInstance()->getRow('SELECT * FROM '._DB_PREFIX_.'smartcoin_transaction WHERE id_order = '.(int)Tools::getValue('id_order').' AND type = \'payment\' AND status = \'paid\'');
+  			$smartcoin_transaction_details = Db::getInstance()->getRow('SELECT * FROM '._DB_PREFIX_.'smartcoin_transaction WHERE id_order = '.(int)Tools::getValue('id_order').' AND type = \'payment\'');
 
   			/* Get all the refunds previously made (to build a list and determine if another refund is still possible) */
   			$smartcoin_refunded = 0;
@@ -378,29 +443,38 @@
   					}
   					$(\'<fieldset'.(_PS_VERSION_ < 1.5 ? ' style="width: 400px;"' : '').'><legend><img src="../img/admin/money.gif" alt="" />'.$this->l('SmartCoin Payment Details').'</legend>';
 
-  			if (isset($smartcoin_transaction_details['id_transaction']))
+  			if (isset($smartcoin_transaction_details['id_transaction'])){
+          $payment_output = '';
+          if($smartcoin_transaction_details['charge_type'] !== 'bank_slip'){
+            $payment_output = $this->l('Credit card:').' '.Tools::safeOutput($smartcoin_transaction_details['cc_type']).' ('.$this->l('Exp.:').' '.Tools::safeOutput($smartcoin_transaction_details['cc_exp']).')<br />'.
+                              $this->l('Last 4 digits:').' '.sprintf('%04d', $smartcoin_transaction_details['cc_last_digits']).' <br />'.
+                              $this->l('Installments:').' '.sprintf('%d',$smartcoin_transaction_details['installments']).'<br />';
+          }
+
   				$output .= $this->l('SmartCoin Transaction ID:').' '.Tools::safeOutput($smartcoin_transaction_details['id_transaction']).'<br /><br />'.
   				$this->l('Status:').' <span style="font-weight: bold; color: '.($smartcoin_transaction_details['status'] == 'paid' ? 'green;">'.$this->l('Paid') : '#CC0000;">'.$this->l('Unpaid')).'</span><br />'.
   				$this->l('Amount:').' '.Tools::displayPrice($smartcoin_transaction_details['amount']).'<br />'.
   				$this->l('Processed on:').' '.Tools::safeOutput($smartcoin_transaction_details['date_add']).'<br />'.
-  				$this->l('Credit card:').' '.Tools::safeOutput($smartcoin_transaction_details['cc_type']).' ('.$this->l('Exp.:').' '.Tools::safeOutput($smartcoin_transaction_details['cc_exp']).')<br />'.
-  				$this->l('Last 4 digits:').' '.sprintf('%04d', $smartcoin_transaction_details['cc_last_digits']).' <br />'.
-          $this->l('Installments:').' '.sprintf('%d',$smartcoin_transaction_details['installments']).'<br />'.
-  				$this->l('Processing Fee:').' '.Tools::displayPrice($smartcoin_transaction_details['fee']).'<br /><br />'.
+          $payment_output .
+          $this->l('Processing Fee:').' '.Tools::displayPrice($smartcoin_transaction_details['fee']).'<br /><br />'.
   				$this->l('Mode:').' <span style="font-weight: bold; color: '.($smartcoin_transaction_details['mode'] == 'live' ? 'green;">'.$this->l('Live') : '#CC0000;">'.$this->l('Test (You will not receive any payment, until you enable the "Live" mode)')).'</span>';
-  			else
+  			}else{
   				$output .= '<b style="color: #CC0000;">'.$this->l('Warning:').'</b> '.$this->l('The customer paid using SmartCoin and an error occured (check details at the bottom of this page)');
+        }
 
-  			$output .= '</fieldset><br /><fieldset'.(_PS_VERSION_ < 1.5 ? ' style="width: 400px;"' : '').'><legend><img src="../img/admin/money.gif" alt="" />'.$this->l('Proceed to a full or partial refund via SmartCoin').'</legend>'.
-  			((empty($this->_errors['smartcoin_refund_error']) &&  Tools::getIsset('id_transaction_smartcoin')) ? '<div class="conf confirmation">'.$this->l('Your refund was successfully processed').'</div>' : '').
-  			(!empty($this->_errors['smartcoin_refund_error']) ? '<span style="color: #CC0000; font-weight: bold;">'.$this->l('Error:').' '.Tools::safeOutput($this->_errors['smartcoin_refund_error']).'</span><br /><br />' : '').
-  			$this->l('Already refunded:').' <b>'.Tools::displayPrice($smartcoin_refunded).'</b><br /><br />'.($smartcoin_refunded ? '<table class="table" cellpadding="0" cellspacing="0" style="font-size: 12px;"><tr><th>'.$this->l('Date').'</th><th>'.$this->l('Amount refunded').'</th><th>'.$this->l('Status').'</th></tr>'.$output_refund.'</table><br />' : '').
-  			($smartcoin_transaction_details['amount'] > $smartcoin_refunded ? '<form action="" method="post">'.$this->l('Refund:'). ' ' . $c_char .' <input type="text" value="'.number_format($smartcoin_transaction_details['amount'] - $smartcoin_refunded, 2, '.', '').
-  			'" name="smartcoin_amount_to_refund" style="display: inline-block; width: 60px;" /> <input type="hidden" name="id_transaction_smartcoin" value="'.
-  			Tools::safeOutput($smartcoin_transaction_details['id_transaction']).'" /><input type="submit" class="button" onclick="return confirm(\\\''.addslashes($this->l('Do you want to proceed to this refund?')).'\\\');" name="SubmitSmartCoinRefund" value="'.
-  			$this->l('Process Refund').'" /></form>' : '').'</fieldset><br />\').appendTo(appendEl);
-  				});
-  			</script>';
+  			$output .= '</fieldset><br />';
+        if($smartcoin_transaction_details['charge_type'] !== 'bank_slip'){
+          $output .= '<fieldset'.(_PS_VERSION_ < 1.5 ? ' style="width: 400px;"' : '').'><legend><img src="../img/admin/money.gif" alt="" />'.$this->l('Proceed to a full or partial refund via SmartCoin').'</legend>'.
+                  ((empty($this->_errors['smartcoin_refund_error']) &&  Tools::getIsset('id_transaction_smartcoin')) ? '<div class="conf confirmation">'.$this->l('Your refund was successfully processed').'</div>' : '').
+                  (!empty($this->_errors['smartcoin_refund_error']) ? '<span style="color: #CC0000; font-weight: bold;">'.$this->l('Error:').' '.Tools::safeOutput($this->_errors['smartcoin_refund_error']).'</span><br /><br />' : '').
+                  $this->l('Already refunded:').' <b>'.Tools::displayPrice($smartcoin_refunded).'</b><br /><br />'.($smartcoin_refunded ? '<table class="table" cellpadding="0" cellspacing="0" style="font-size: 12px;"><tr><th>'.$this->l('Date').'</th><th>'.$this->l('Amount refunded').'</th><th>'.$this->l('Status').'</th></tr>'.$output_refund.'</table><br />' : '').
+                  ($smartcoin_transaction_details['amount'] > $smartcoin_refunded ? '<form action="" method="post">'.$this->l('Refund:'). ' ' . $c_char .' <input type="text" value="'.number_format($smartcoin_transaction_details['amount'] - $smartcoin_refunded, 2, '.', '').
+                  '" name="smartcoin_amount_to_refund" style="display: inline-block; width: 60px;" /> <input type="hidden" name="id_transaction_smartcoin" value="'.
+                  Tools::safeOutput($smartcoin_transaction_details['id_transaction']).'" /><input type="submit" class="button" onclick="return confirm(\\\''.addslashes($this->l('Do you want to proceed to this refund?')).'\\\');" name="SubmitSmartCoinRefund" value="'.
+                  $this->l('Process Refund').'" /></form>' : '').'</fieldset><br />';
+        }
+        
+        $output .= '\').appendTo(appendEl); }); </script>';
 
   			return $output;
   		}

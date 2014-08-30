@@ -1,4 +1,36 @@
 var smartcoin_form_interval;
+
+var smartcoin_settings_payments = function() {
+	smartcoin_setting_payment_options();
+	smartcoin_setting_payment_bank_slip();
+	smartcoin_setting_payment_card_form();
+	window.clearInterval(smartcoin_form_interval);
+};
+
+var smartcoin_setting_payment_options = function() {
+	$('input#smartcoin_payment_option_bank_slip').click(function(){
+		$('div#smartcoin_cc_box').hide();
+		$('div#smartcoin_bank_slip_box').fadeIn();
+	});
+
+	$('input#smartcoin_payment_option_cc').click(function(){
+		$('div#smartcoin_bank_slip_box').hide();
+		$('div#smartcoin_cc_box').fadeIn();
+	});
+};
+
+var smartcoin_setting_payment_bank_slip = function() {
+	$('#smartcoin-payment-bank-slip-form').submit(function(event) {
+		$('#smartcoin-payment-bank-slip-form').hide();
+		$('#smartcoin-ajax-loader').show();
+		$('.smartcoin-submit-button').attr('disabled', 'disabled'); /* Disable the submit button to prevent repeated clicks */
+		$('#smartcoin-payment-bank-slip-form').append('<input type="hidden" name="smartcoin_charge_type" value="bank_slip" />');
+		$('#smartcoin-payment-bank-slip-form').get(0).submit();
+
+		return false;
+	});
+};
+
 var smartcoin_setting_payment_card_form = function(){
 	/* Set SmartCoin's api key */
 	SmartCoin.set_api_key(_smartcoin_api_key);
@@ -106,7 +138,6 @@ var smartcoin_setting_payment_card_form = function(){
 	if ($('.smartcoin-payment-errors').text())
 		$('.smartcoin-payment-errors').fadeIn(1000);
 
-	window.clearInterval(smartcoin_form_interval);
 };
 
 var smartcoin_response_handler = function(response) {
@@ -122,13 +153,13 @@ var smartcoin_response_handler = function(response) {
 		$('#smartcoin-payment-form').append('<input type="hidden" name="StripLastDigits" value="' + parseInt($('.smartcoin-card-number').val().slice(-4)) + '" />');
 		$('#smartcoin-payment-form').get(0).submit();
 	}
-}
+};
 
 $(window).load(function() {
-	smartcoin_form_interval = setInterval(smartcoin_setting_payment_card_form,1000);
+	smartcoin_form_interval = setInterval(smartcoin_settings_payments,2000);
 });
 
 $('#cgv').click(function(event){
-	smartcoin_form_interval = setInterval(smartcoin_setting_payment_card_form,1000);
+	smartcoin_form_interval = setInterval(smartcoin_settings_payments,2000);
 });
 

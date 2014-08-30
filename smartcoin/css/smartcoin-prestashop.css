@@ -7,6 +7,14 @@ div.payment_module {
 .smartcoin_title {
 }
 
+.smartcoin_bank_slip_box {
+	display: none;
+}
+
+.smartcoin_cc_box {
+	
+}
+
 .smartcoin_title img {
 	float: none;
 	margin-right: 8px;
@@ -104,7 +112,8 @@ img.enable {
 	font-size: 11px;
 	text-decoration: underline;
 }
-#smartcoin-payment-form .smartcoin-submit-button, #smartcoin-payment-form-cc .smartcoin-submit-button-cc {
+#smartcoin-payment-form .smartcoin-submit-button, #smartcoin-payment-form-cc .smartcoin-submit-button-cc,
+#smartcoin-payment-bank-slip-form .smartcoin-submit-button {
 	border-radius: 8px;
 	-moz-border-radius: 8px;
 	-webkit-border-radius: 8px;
