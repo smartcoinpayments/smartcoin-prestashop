@@ -4,9 +4,10 @@
 	{if $order_pending}
 		<div class="conf confirmation">{l s='Your order was processed. We are awaiting the payment confirmation.' mod='smartcoin'}<br /><br />
 		{l s='Your bank slip bar code is: ' mod='smartcoin'} <strong>{$smartcoin_order.bank_slip_bar_code}</strong><br /><br />
-		<a href="{$smartcoin_order.bank_slip_link}" target="_blank">
-		{l s='Click here to visualize the bank slip.' mod='smartcoin'}
-		</a><br /><br />
+		<a style="padding: 10px; border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px; color: #FFF; display: inline-block; background:#45B1E8;" href="{$smartcoin_order.bank_slip_link}" target="_blank">
+		{l s='VISUALIZAR BOLETO' mod='smartcoin'}
+		</a>
+		<br /><br />
 		{l s='Do not try to submit your order again. We will review the order and provide a status shortly.' mod='smartcoin'}<br /><br />
 		({l s='Your Order\'s Reference:' mod='smartcoin'} <b>{$smartcoin_order.reference|escape:html:'UTF-8'}</b>)</div>
 	{else}
