@@ -206,7 +206,7 @@ div.smartcoin-card-deleted {
 	text-transform: none;
 }
 
-#smartcoin-translations, #smartcoin-ajax-loader {
+#smartcoin-translations, #smartcoin-ajax-loader-bank-slip, #smartcoin-ajax-loader-cc {
 	display: none;
 }
 #smartcoin_save_token {

@@ -11,7 +11,7 @@
 			</div>
 		</div>
 		<div id="smartcoin_bank_slip_box" class="smartcoin_bank_slip_box clearing">
-			<div id="smartcoin-ajax-loader"><img src="{$module_dir|escape:htmlall:'UTF-8'}img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='smartcoin'}</div>
+			<div id="smartcoin-ajax-loader-bank-slip"><img src="{$module_dir|escape:htmlall:'UTF-8'}img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='smartcoin'}</div>
 			<form action="{$validation_url|escape:htmlall:'UTF-8'}" method="POST" id="smartcoin-payment-bank-slip-form" >
 				<button type="submit" class="smartcoin-submit-button bt-blue">{l s='Submit Payment' mod='smartcoin'}</button>
 			</form>
@@ -30,7 +30,7 @@
 			</div>
 		</div>
 		<div id="smartcoin_cc_box" class="smartcoin_cc_box clearing" >
-			<div id="smartcoin-ajax-loader"><img src="{$module_dir|escape:htmlall:'UTF-8'}img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='smartcoin'}</div>
+			<div id="smartcoin-ajax-loader-cc"><img src="{$module_dir|escape:htmlall:'UTF-8'}img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='smartcoin'}</div>
 			<form action="{$validation_url|escape:htmlall:'UTF-8'}" method="POST" id="smartcoin-payment-form" >
 				<div class="smartcoin-payment-errors">{if isset($smartcoin_error)}{$smartcoin_error|escape:htmlall:'UTF-8'}{/if}</div>
 

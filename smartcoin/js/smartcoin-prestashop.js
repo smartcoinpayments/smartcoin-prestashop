@@ -22,7 +22,7 @@ var smartcoin_setting_payment_options = function() {
 var smartcoin_setting_payment_bank_slip = function() {
 	$('#smartcoin-payment-bank-slip-form').submit(function(event) {
 		$('#smartcoin-payment-bank-slip-form').hide();
-		$('#smartcoin-ajax-loader').show();
+		$('#smartcoin-ajax-loader-bank-slip').show();
 		$('.smartcoin-submit-button').attr('disabled', 'disabled'); /* Disable the submit button to prevent repeated clicks */
 		$('#smartcoin-payment-bank-slip-form').append('<input type="hidden" name="smartcoin_charge_type" value="bank_slip" />');
 		$('#smartcoin-payment-bank-slip-form').get(0).submit();
@@ -77,7 +77,7 @@ var smartcoin_setting_payment_card_form = function(){
 			$('.smartcoin-payment-errors').hide();
 			$('#smartcoin-payment-form').hide();
 			$('.smartcoin-card-wrapper').hide();
-			$('#smartcoin-ajax-loader').show();
+			$('#smartcoin-ajax-loader-cc').show();
 			$('.smartcoin-submit-button').attr('disabled', 'disabled'); /* Disable the submit button to prevent repeated clicks */
 
 			_user_id = ps_customer_email;
