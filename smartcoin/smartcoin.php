@@ -7,7 +7,7 @@
     public function __construct() {
       $this->name = 'smartcoin';
       $this->tab = "payments_gateways";
-      $this->version = '0.2.0';
+      $this->version = '0.2.2';
       $this->author = "SmartCoin LTDA.";
       $this->need_instance = 0;
 
