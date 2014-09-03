@@ -30,7 +30,7 @@
       $ret = parent::install() && $this->registerHook('payment') && $this->registerHook('header') &&
             $this->registerHook('paymentReturn') && $this->registerHook('backOfficeHeader') &&
             $this->installDB() && Configuration::updateValue('SMARTCOIN_MODE', 0) &&
-            createSmartcoinPendingOrderStatus() &&
+            $this->createSmartcoinPendingOrderStatus() &&
         		Configuration::updateValue('SMARTCOIN_PAYMENT_ORDER_STATUS', (int)Configuration::get('PS_OS_PAYMENT')) &&
         		Configuration::updateValue('SMARTCOIN_CHARGEBACKS_ORDER_STATUS', (int)Configuration::get('PS_OS_ERROR'));
 
