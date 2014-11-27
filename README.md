@@ -2,7 +2,7 @@
 
 O plugin para [PrestShop](http://www.prestashop.com/) agiliza a integração da [Smartcoin](https://smartcoin.com.br/).
 
-**1)** Baixe o plugin [aqui]();
+**1)** Baixe o plugin [aqui](https://github.com/smartcoinpayments/smartcoin-prestashop/archive/master.zip);
 
 **2)** Instale o plugin no PrestaShop;
 
