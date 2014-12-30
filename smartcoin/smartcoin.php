@@ -32,7 +32,9 @@
             $this->installDB() && Configuration::updateValue('SMARTCOIN_MODE', 0) &&
             $this->createSmartcoinPendingOrderStatus() &&
         		Configuration::updateValue('SMARTCOIN_PAYMENT_ORDER_STATUS', (int)Configuration::get('PS_OS_PAYMENT')) &&
-        		Configuration::updateValue('SMARTCOIN_CHARGEBACKS_ORDER_STATUS', (int)Configuration::get('PS_OS_ERROR'));
+        		Configuration::updateValue('SMARTCOIN_CHARGEBACKS_ORDER_STATUS', (int)Configuration::get('PS_OS_ERROR')) &&
+            Configuration::updateValue('SMARTCOIN_PAYMENT_OPTION_CREDIT_CARD', 1) &&
+            Configuration::updateValue('SMARTCOIN_PAYMENT_OPTION_BANK_SLIP', 1);
 
       return $ret;
     }
@@ -99,7 +101,8 @@
   		return parent::uninstall() && Configuration::deleteByName('SMARTCOIN_API_KEY_TEST') && Configuration::deleteByName('SMARTCOIN_API_KEY_LIVE')
   		&& Configuration::deleteByName('SMARTCOIN_MODE') && Configuration::deleteByName('SMARTCOIN_SECRET_KEY_TEST') && Configuration::deleteByName('SMARTCOIN_SECRET_KEY_LIVE') &&
   		Configuration::deleteByName('SMARTCOIN_CHARGEBACKS_ORDER_STATUS') && Configuration::deleteByName('SMARTCOIN_PENDING_ORDER_STATUS') && Configuration::deleteByName('SMARTCOIN_PAYMENT_ORDER_STATUS') &&
-  		Db::getInstance()->Execute('DROP TABLE `'._DB_PREFIX_.'smartcoin_transaction`');
+  		Configuration::deleteByName('SMARTCOIN_PAYMENT_OPTION_CREDIT_CARD') && Configuration::deleteByName('SMARTCOIN_PAYMENT_OPTION_BANK_SLIP') &&
+      Db::getInstance()->Execute('DROP TABLE `'._DB_PREFIX_.'smartcoin_transaction`');
   	}
 
 
@@ -132,6 +135,8 @@
 
   		$this->smarty->assign('validation_url', (Configuration::get('PS_SSL_ENABLED') ? 'https' : 'http').'://'.$_SERVER['HTTP_HOST'].__PS_BASE_URI__.'index.php?process=validation&fc=module&module=smartcoin&controller=default');
   		$this->smarty->assign('smartcoin_ps_version', _PS_VERSION_);
+      $this->smarty->assign('smartcoin_payment_option_credit_card', Configuration::get('SMARTCOIN_PAYMENT_OPTION_CREDIT_CARD'));
+      $this->smarty->assign('smartcoin_payment_option_bank_slip', Configuration::get('SMARTCOIN_PAYMENT_OPTION_BANK_SLIP'));
       $customer = new Customer((int)$this->context->cookie->id_customer);
 
       return '
@@ -595,7 +600,9 @@
   					'SMARTCOIN_SECRET_KEY_LIVE' => trim(Tools::getValue('smartcoin_secret_key_live')),
   					'SMARTCOIN_PENDING_ORDER_STATUS' => (int)Tools::getValue('smartcoin_pending_status'),
   					'SMARTCOIN_PAYMENT_ORDER_STATUS' => (int)Tools::getValue('smartcoin_payment_status'),
-  					'SMARTCOIN_CHARGEBACKS_ORDER_STATUS' => (int)Tools::getValue('smartcoin_chargebacks_status')
+  					'SMARTCOIN_CHARGEBACKS_ORDER_STATUS' => (int)Tools::getValue('smartcoin_chargebacks_status'),
+            'SMARTCOIN_PAYMENT_OPTION_CREDIT_CARD' => (int)Tools::getValue('smartcoin_payment_option_credit_card'),
+            'SMARTCOIN_PAYMENT_OPTION_BANK_SLIP' => (int)Tools::getValue('smartcoin_payment_option_bank_slip')
   				);
 
   				foreach ($configuration_values as $configuration_key => $configuration_value)
@@ -695,6 +702,23 @@
   							</table>
   						</td>
   					</tr>';
+
+      $output .= '
+        <td align="center" valign="middle" colspan="2">
+          <table cellspacing="0" cellpadding="0" class="innerTable">
+            <tr>
+              <td align="right" valign="middle">'.$this->l('Payment Options:').'</td>
+              <td align="right" valign="middle">'.$this->l('Credit Card').'</td>
+              <td>
+                <input type="checkbox" name="smartcoin_payment_option_credit_card" value="1" ' . (Configuration::get('SMARTCOIN_PAYMENT_OPTION_CREDIT_CARD') ? ' checked="checked"' : '') . ' />
+              <td>
+              <td align="right" valign="middle">'.$this->l('Bank Slip').'</td>
+              <td>
+                <input type="checkbox" name="smartcoin_payment_option_bank_slip" value="1" ' . (Configuration::get('SMARTCOIN_PAYMENT_OPTION_BANK_SLIP') ? ' checked="checked"' : '') . ' />
+              <td>
+            <tr>
+          </table>
+        </tr>';
 
       $statuses_options = array(array('name' => 'smartcoin_payment_status', 'label' => $this->l('Order status in case of sucessfull payment:'), 'current_value' => Configuration::get('SMARTCOIN_PAYMENT_ORDER_STATUS')),
 			array('name' => 'smartcoin_pending_status', 'label' => $this->l('Order status in case of unsucessfull address/zip-code check:'), 'current_value' => Configuration::get('SMARTCOIN_PENDING_ORDER_STATUS')),
