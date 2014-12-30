@@ -1,16 +1,17 @@
 <div class="payment_module {if $smartcoin_ps_version < '1.5'}smartcoin-payment-15{/if}{if $smartcoin_ps_version > '1.5'}smartcoin-payment-16{/if}">
+{if $smartcoin_payment_option_bank_slip }
 	<!-- Start bank slip option -->
 	<section>
 		<div>
 			<div style="float: left;">
-				<input type="radio" id="smartcoin_payment_option_bank_slip" name="smartcoin_payment_option" value="bank_slip" >
+				<input type="radio" id="smartcoin_payment_option_bank_slip" name="smartcoin_payment_option" value="bank_slip" {if !$smartcoin_payment_option_credit_card} checked {/if}>
 			</div>
 			<h3 class="smartcoin_title">{l s='Pay by bank slip ' mod='smartcoin'} <img alt="" src="{$module_dir|escape:htmlall:'UTF-8'}img/secure-icon.png" /></h3>
 			<div class="boleto-wrap">
 				<img src="{$module_dir|escape:htmlall:'UTF-8'}img/credit-cards.svg" onerror="this.src={$module_dir|escape:htmlall:'UTF-8'}img/credit-cards.png" alt="" class="paymentBoleto">
 			</div>
 		</div>
-		<div id="smartcoin_bank_slip_box" class="smartcoin_bank_slip_box clearing">
+		<div id="smartcoin_bank_slip_box" class="smartcoin_bank_slip_box clearing" {if !$smartcoin_payment_option_credit_card} style="display: block;" {/if}>
 			<div id="smartcoin-ajax-loader-bank-slip"><img src="{$module_dir|escape:htmlall:'UTF-8'}img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='smartcoin'}</div>
 			<form action="{$validation_url|escape:htmlall:'UTF-8'}" method="POST" id="smartcoin-payment-bank-slip-form" >
 				<button type="submit" class="smartcoin-submit-button bt-blue">{l s='Submit Payment' mod='smartcoin'}</button>
@@ -18,6 +19,8 @@
 		</div>
 	</section>
 	<!-- End bank slip option -->
+	{/if}
+	{if $smartcoin_payment_option_credit_card }
 	<!-- Start credit card option -->
 	<section>
 		<div class="clearing">
@@ -110,4 +113,5 @@
 		</div>
 	</section>
 	<!-- End Credit card option -->
+	{/if}
 </div>
