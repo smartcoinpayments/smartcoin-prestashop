@@ -1,8 +1,8 @@
 #Vamos começar
 
-O plugin para [PrestShop](http://www.prestashop.com/) agiliza a integração da [Smartcoin](https://smartcoin.com.br/).
+O plugin para <a href="http://www.prestashop.com/" target="_blank">PrestShop</a> agiliza a integração da <a href="https://smartcoin.com.br/" target="_blank">Smartcoin</a>.
 
-**1)** Baixe o plugin [aqui](https://github.com/smartcoinpayments/smartcoin-prestashop/archive/master.zip);
+**1)** Baixe o plugin <a href="https://github.com/smartcoinpayments/smartcoin-prestashop/archive/master.zip" target="_blank">aqui</a>;
 
 **2)** Unzip o arquivo smartcoin-prestashop-master.zip;
 
@@ -10,6 +10,6 @@ O plugin para [PrestShop](http://www.prestashop.com/) agiliza a integração da 
 
 **4)** Instale o plugin smartcoin.zip no PrestaShop;
 
-**5)** Configure as chaves de acesso a API (test/live). Se ainda não tem uma conta na Smartcoin, cadastre-se [aqui].(https://manage.smartcoin.com.br/#/signup)
+**5)** Configure as chaves de acesso a API (test/live). Se ainda não tem uma conta na Smartcoin, cadastre-se <a href="https://manage.smartcoin.com.br/#/signup" target="_blank">aqui</a>.
 
-Pronto! Vocês já pode usar a Smartcoin no ambiente de teste. Não se esquece te ativar sua conta da [Smartcoin](https://smartcoin.com.br/) para poder começar a receber pagamentos. Saiba mais como [aqui](https://github.com/smartcoinpayments/Documentation/wiki/Ativa%C3%A7%C3%A3o-da-Conta).
+Pronto! Você já pode usar a Smartcoin no ambiente de teste. Não se esqueça te ativar sua conta da <a href="https://smartcoin.com.br/" target="_blank">Smartcoin</a> para poder começar a receber pagamentos. Veja mais detalhes de como ativar a sua conta <a href="https://github.com/smartcoinpayments/Documentation/wiki/Ativa%C3%A7%C3%A3o-da-Conta" target="_blank">aqui</a>.
