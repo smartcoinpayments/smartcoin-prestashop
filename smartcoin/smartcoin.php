@@ -3,12 +3,12 @@
   if (!defined('_PS_VERSION_'))
     exit;
 
-  class SmartCoin extends PaymentModule {
+  class Smartcoin extends PaymentModule {
     public function __construct() {
       $this->name = 'smartcoin';
       $this->tab = "payments_gateways";
-      $this->version = '0.2.2';
-      $this->author = "SmartCoin LTDA.";
+      $this->version = '0.2.4';
+      $this->author = "Smartcoin LTDA.";
       $this->need_instance = 0;
 
       parent::__construct();
@@ -22,7 +22,7 @@
 
 
     /**
-  	 * SmartCoin's module installation
+  	 * Smartcoin's module installation
   	 *
   	 * @return boolean Install result
   	 */
@@ -34,7 +34,8 @@
         		Configuration::updateValue('SMARTCOIN_PAYMENT_ORDER_STATUS', (int)Configuration::get('PS_OS_PAYMENT')) &&
         		Configuration::updateValue('SMARTCOIN_CHARGEBACKS_ORDER_STATUS', (int)Configuration::get('PS_OS_ERROR')) &&
             Configuration::updateValue('SMARTCOIN_PAYMENT_OPTION_CREDIT_CARD', 1) &&
-            Configuration::updateValue('SMARTCOIN_PAYMENT_OPTION_BANK_SLIP', 1);
+            Configuration::updateValue('SMARTCOIN_PAYMENT_OPTION_BANK_SLIP', 1) &&
+            Configuration::updateValue('SMARTCOIN_WEBHOOK_TOKEN', md5(Tools::passwdGen()));
 
       return $ret;
     }
@@ -76,7 +77,7 @@
     }
 
     /**
-  	 * SmartCoin's module database tables installation
+  	 * Smartcoin's module database tables installation
   	 *
   	 * @return boolean Database tables installation result
   	 */
@@ -93,7 +94,7 @@
     }
 
     /**
-  	 * SmartCoin's module uninstallation (Configuration values, database tables...)
+  	 * Smartcoin's module uninstallation (Configuration values, database tables...)
   	 *
   	 * @return boolean Uninstall result
   	 */
@@ -101,18 +102,18 @@
   		return parent::uninstall() && Configuration::deleteByName('SMARTCOIN_API_KEY_TEST') && Configuration::deleteByName('SMARTCOIN_API_KEY_LIVE')
   		&& Configuration::deleteByName('SMARTCOIN_MODE') && Configuration::deleteByName('SMARTCOIN_SECRET_KEY_TEST') && Configuration::deleteByName('SMARTCOIN_SECRET_KEY_LIVE') &&
   		Configuration::deleteByName('SMARTCOIN_CHARGEBACKS_ORDER_STATUS') && Configuration::deleteByName('SMARTCOIN_PENDING_ORDER_STATUS') && Configuration::deleteByName('SMARTCOIN_PAYMENT_ORDER_STATUS') &&
-  		Configuration::deleteByName('SMARTCOIN_PAYMENT_OPTION_CREDIT_CARD') && Configuration::deleteByName('SMARTCOIN_PAYMENT_OPTION_BANK_SLIP') &&
+  		Configuration::deleteByName('SMARTCOIN_PAYMENT_OPTION_CREDIT_CARD') && Configuration::deleteByName('SMARTCOIN_PAYMENT_OPTION_BANK_SLIP') && Configuration::deleteByName('SMARTCOIN_WEBHOOK_TOKEN') &&
       Db::getInstance()->Execute('DROP TABLE `'._DB_PREFIX_.'smartcoin_transaction`');
   	}
 
 
     /**
-  	 * Display the SmartCoin's payment form
+  	 * Display the Smartcoin's payment form
   	 *
-  	 * @return string SmartCoin's Smarty template content
+  	 * @return string Smartcoin's Smarty template content
   	 */
     public function hookPayment($params) {
-      /* If the address check has been enabled by the merchant, we will transmitt the billing address to SmartCoin */
+      /* If the address check has been enabled by the merchant, we will transmitt the billing address to Smartcoin */
   		if (isset($this->context->cart->id_address_invoice)) {
   			$billing_address = new Address((int)$this->context->cart->id_address_invoice);
   			if ($billing_address->id_state) {
@@ -191,15 +192,18 @@
     /**
   	 * Process a payment
   	 *
-  	 * @param string $token SmartCoin Transaction ID (token) and installments
+  	 * @param string $token Smartcoin Transaction ID (token) and installments
   	 */
   	public function processPayment($token=null, $installments=1, $charge_type=null) {
   		/* If 1.4 and no backward, then leave */
   		if (!$this->backward)
   			return;
 
-  		include(dirname(__FILE__).'/lib/SmartCoin.php');
-  		$access_key = Configuration::get('SMARTCOIN_MODE') ? Configuration::get('SMARTCOIN_API_KEY_LIVE') .':'. Configuration::get('SMARTCOIN_SECRET_KEY_LIVE') : Configuration::get('SMARTCOIN_API_KEY_TEST') .':'. Configuration::get('SMARTCOIN_SECRET_KEY_TEST');
+  		include(dirname(__FILE__).'/lib/Smartcoin.php');
+      $api_key = (Configuration::get('SMARTCOIN_MODE') ? Configuration::get('SMARTCOIN_API_KEY_LIVE') : Configuration::get('SMARTCOIN_API_KEY_TEST'));
+      $api_secret = (Configuration::get('SMARTCOIN_MODE') ? Configuration::get('SMARTCOIN_SECRET_KEY_LIVE') : Configuration::get('SMARTCOIN_SECRET_KEY_TEST'));
+      \Smartcoin\Smartcoin::api_key($api_key);
+      \Smartcoin\Smartcoin::api_secret($api_secret);
 
   		try {
         $charge_details = array();
@@ -214,7 +218,7 @@
           $charge_details['installment'] = $installments;
         }
 
-  			$result_json = Charge::create($charge_details,$access_key);
+  			$result_json = \Smartcoin\Charge::create($charge_details);
 
         if($result_json->failure_code != Null){
           $message = $result_json->failure_message;
@@ -226,7 +230,7 @@
         }
 
   		// catch the smartcoin error the correct way.
-      } catch(\SmartCoin\Error $e) {
+      } catch(\Smartcoin\Error $e) {
   			$body = $e->get_json_body();
   			$err = $body['error'];
 
@@ -281,7 +285,7 @@
           $this->l('Installments:').' '. (int)count($result_json->installments)."\n";
         }
 
-  			$message = $this->l('SmartCoin Transaction Details:')."\n\n".
+  			$message = $this->l('Smartcoin Transaction Details:')."\n\n".
   			$this->l('Smartcoin Transaction ID:').' '.$result_json->id."\n".
   			$this->l('Amount:').' '.($result_json->amount * 0.01)."\n".
   			$this->l('Status:').' '.($result_json->paid == 'true' ? $this->l('Paid') : $this->l('Unpaid'))."\n".
@@ -312,7 +316,7 @@
   		/* Create the PrestaShop order in database */
   		$this->validateOrder((int)$this->context->cart->id, (int)$order_status, ($result_json->amount * 0.01), $this->displayName, $message, array(), null, false, $this->context->customer->secure_key);
 
-  		/** @since 1.5.0 Attach the SmartCoin Transaction ID to this Order */
+  		/** @since 1.5.0 Attach the Smartcoin Transaction ID to this Order */
   		if (version_compare(_PS_VERSION_, '1.5', '>=')) {
   			$new_order = new Order((int)$this->currentOrder);
   			if (Validate::isLoadedObject($new_order)) {
@@ -356,7 +360,7 @@
   /**
   	 * Process a partial or full refund
   	 *
-  	 * @param string $id_transaction_smartcoin SmartCoin Transaction ID (token)
+  	 * @param string $id_transaction_smartcoin Smartcoin Transaction ID (token)
   	 * @param float $amount Amount to refund
   	 * @param array $original_transaction Original transaction details
   	 */
@@ -365,12 +369,16 @@
   		if (!$this->backward)
   			return;
 
-  		include(dirname(__FILE__).'/lib/SmartCoin.php');
+  		include(dirname(__FILE__).'/lib/Smartcoin.php');
       $access_key = Configuration::get('SMARTCOIN_MODE') ? Configuration::get('SMARTCOIN_API_KEY_LIVE') .':'. Configuration::get('SMARTCOIN_SECRET_KEY_LIVE') : Configuration::get('SMARTCOIN_API_KEY_TEST') .':'. Configuration::get('SMARTCOIN_SECRET_KEY_TEST');
 
   		/* Try to process the refund and catch any error message */
   		try {
-  			$charge = Charge::retrieve($id_transaction_smartcoin, $access_key);
+        $api_key = (Configuration::get('SMARTCOIN_MODE') ? Configuration::get('SMARTCOIN_API_KEY_LIVE') : Configuration::get('SMARTCOIN_API_KEY_TEST'));
+        $api_secret = (Configuration::get('SMARTCOIN_MODE') ? Configuration::get('SMARTCOIN_SECRET_KEY_LIVE') : Configuration::get('SMARTCOIN_SECRET_KEY_TEST'));
+        \Smartcoin\Smartcoin::api_key($api_key);
+        \Smartcoin\Smartcoin::api_secret($api_secret);
+  			$charge = \Smartcoin\Charge::retrieve($id_transaction_smartcoin, $access_key);
   			$result_json = $charge->refund(array('amount' => $amount * 100));
   		}
   		catch (Exception $e) {
@@ -391,7 +399,7 @@
 
 
     /**
-  	 * Display the two fieldsets containing SmartCoin's transactions details
+  	 * Display the two fieldsets containing Smartcoin's transactions details
   	 * Visible on the Order's detail page in the Back-office only
   	 *
   	 * @return string HTML/JS Content
@@ -406,7 +414,7 @@
   			return;
 
   		/* If the "Refund" button has been clicked, check if we can perform a partial or full refund on this order */
-  		if (Tools::isSubmit('SubmitSmartCoinRefund') && Tools::getIsset('smartcoin_amount_to_refund') && Tools::getIsset('id_transaction_smartcoin')) {
+  		if (Tools::isSubmit('SubmitSmartcoinRefund') && Tools::getIsset('smartcoin_amount_to_refund') && Tools::getIsset('id_transaction_smartcoin')) {
   			/* Get transaction details and make sure the token is valid */
   			$smartcoin_transaction_details = Db::getInstance()->getRow('SELECT * FROM '._DB_PREFIX_.'smartcoin_transaction WHERE id_order = '.(int)Tools::getValue('id_order').' AND type = \'payment\' AND status = \'paid\'');
   			if (isset($smartcoin_transaction_details['id_transaction']) && $smartcoin_transaction_details['id_transaction'] === Tools::getValue('id_transaction_smartcoin')) {
@@ -419,7 +427,7 @@
   			}
   		}
 
-      /* Check if the order was paid with SmartCoin and display the transaction details */
+      /* Check if the order was paid with Smartcoin and display the transaction details */
   		if(Db::getInstance()->getValue('SELECT module FROM '._DB_PREFIX_.'orders WHERE id_order = '.(int)Tools::getValue('id_order')) == $this->name) {
   			/* Get the transaction details */
   			$smartcoin_transaction_details = Db::getInstance()->getRow('SELECT * FROM '._DB_PREFIX_.'smartcoin_transaction WHERE id_order = '.(int)Tools::getValue('id_order').' AND type = \'payment\'');
@@ -446,7 +454,7 @@
   					} else {
   						appendEl = $("#status");
   					}
-  					$(\'<fieldset'.(_PS_VERSION_ < 1.5 ? ' style="width: 400px;"' : '').'><legend><img src="../img/admin/money.gif" alt="" />'.$this->l('SmartCoin Payment Details').'</legend>';
+  					$(\'<fieldset'.(_PS_VERSION_ < 1.5 ? ' style="width: 400px;"' : '').'><legend><img src="../img/admin/money.gif" alt="" />'.$this->l('Smartcoin Payment Details').'</legend>';
 
   			if (isset($smartcoin_transaction_details['id_transaction'])){
           $payment_output = '';
@@ -456,7 +464,7 @@
                               $this->l('Installments:').' '.sprintf('%d',$smartcoin_transaction_details['installments']).'<br />';
           }
 
-  				$output .= $this->l('SmartCoin Transaction ID:').' '.Tools::safeOutput($smartcoin_transaction_details['id_transaction']).'<br /><br />'.
+  				$output .= $this->l('Smartcoin Transaction ID:').' '.Tools::safeOutput($smartcoin_transaction_details['id_transaction']).'<br /><br />'.
   				$this->l('Status:').' <span style="font-weight: bold; color: '.($smartcoin_transaction_details['status'] == 'paid' ? 'green;">'.$this->l('Paid') : '#CC0000;">'.$this->l('Unpaid')).'</span><br />'.
   				$this->l('Amount:').' '.Tools::displayPrice($smartcoin_transaction_details['amount']).'<br />'.
   				$this->l('Processed on:').' '.Tools::safeOutput($smartcoin_transaction_details['date_add']).'<br />'.
@@ -464,18 +472,18 @@
           $this->l('Processing Fee:').' '.Tools::displayPrice($smartcoin_transaction_details['fee']).'<br /><br />'.
   				$this->l('Mode:').' <span style="font-weight: bold; color: '.($smartcoin_transaction_details['mode'] == 'live' ? 'green;">'.$this->l('Live') : '#CC0000;">'.$this->l('Test (You will not receive any payment, until you enable the "Live" mode)')).'</span>';
   			}else{
-  				$output .= '<b style="color: #CC0000;">'.$this->l('Warning:').'</b> '.$this->l('The customer paid using SmartCoin and an error occured (check details at the bottom of this page)');
+  				$output .= '<b style="color: #CC0000;">'.$this->l('Warning:').'</b> '.$this->l('The customer paid using Smartcoin and an error occured (check details at the bottom of this page)');
         }
 
   			$output .= '</fieldset><br />';
         if($smartcoin_transaction_details['charge_type'] !== 'bank_slip'){
-          $output .= '<fieldset'.(_PS_VERSION_ < 1.5 ? ' style="width: 400px;"' : '').'><legend><img src="../img/admin/money.gif" alt="" />'.$this->l('Proceed to a full or partial refund via SmartCoin').'</legend>'.
+          $output .= '<fieldset'.(_PS_VERSION_ < 1.5 ? ' style="width: 400px;"' : '').'><legend><img src="../img/admin/money.gif" alt="" />'.$this->l('Proceed to a full or partial refund via Smartcoin').'</legend>'.
                   ((empty($this->_errors['smartcoin_refund_error']) &&  Tools::getIsset('id_transaction_smartcoin')) ? '<div class="conf confirmation">'.$this->l('Your refund was successfully processed').'</div>' : '').
                   (!empty($this->_errors['smartcoin_refund_error']) ? '<span style="color: #CC0000; font-weight: bold;">'.$this->l('Error:').' '.Tools::safeOutput($this->_errors['smartcoin_refund_error']).'</span><br /><br />' : '').
                   $this->l('Already refunded:').' <b>'.Tools::displayPrice($smartcoin_refunded).'</b><br /><br />'.($smartcoin_refunded ? '<table class="table" cellpadding="0" cellspacing="0" style="font-size: 12px;"><tr><th>'.$this->l('Date').'</th><th>'.$this->l('Amount refunded').'</th><th>'.$this->l('Status').'</th></tr>'.$output_refund.'</table><br />' : '').
                   ($smartcoin_transaction_details['amount'] > $smartcoin_refunded ? '<form action="" method="post">'.$this->l('Refund:'). ' ' . $c_char .' <input type="text" value="'.number_format($smartcoin_transaction_details['amount'] - $smartcoin_refunded, 2, '.', '').
                   '" name="smartcoin_amount_to_refund" style="display: inline-block; width: 60px;" /> <input type="hidden" name="id_transaction_smartcoin" value="'.
-                  Tools::safeOutput($smartcoin_transaction_details['id_transaction']).'" /><input type="submit" class="button" onclick="return confirm(\\\''.addslashes($this->l('Do you want to proceed to this refund?')).'\\\');" name="SubmitSmartCoinRefund" value="'.
+                  Tools::safeOutput($smartcoin_transaction_details['id_transaction']).'" /><input type="submit" class="button" onclick="return confirm(\\\''.addslashes($this->l('Do you want to proceed to this refund?')).'\\\');" name="SubmitSmartcoinRefund" value="'.
                   $this->l('Process Refund').'" /></form>' : '').'</fieldset><br />';
         }
         
@@ -487,7 +495,7 @@
 
 
     /**
-  	 * Load Javascripts and CSS related to the SmartCoin's module
+  	 * Load Javascripts and CSS related to the Smartcoin's module
   	 *
   	 * @return string HTML/JS Content
   	 */
@@ -529,7 +537,7 @@
 
 
     /**
-  	 * Check settings requirements to make sure the SmartCoin's module will work properly
+  	 * Check settings requirements to make sure the Smartcoin's module will work properly
   	 *
   	 * @return boolean Check result
   	 */
@@ -541,7 +549,7 @@
   	}
 
     /**
-  	 * Check technical requirements to make sure the SmartCoin's module will work properly
+  	 * Check technical requirements to make sure the Smartcoin's module will work properly
   	 *
   	 * @return array Requirements tests results
   	 */
@@ -551,7 +559,7 @@
   		if (Configuration::get('SMARTCOIN_MODE'))
   			$tests['ssl'] = array('name' => $this->l('SSL must be enabled on your store (before entering Live mode)'), 'result' => Configuration::get('PS_SSL_ENABLED') || (!empty($_SERVER['HTTPS']) && Tools::strtolower($_SERVER['HTTPS']) != 'off'));
   		$tests['php52'] = array('name' => $this->l('Your server must run PHP 5.2 or greater'), 'result' => version_compare(PHP_VERSION, '5.2.0', '>='));
-  		$tests['configuration'] = array('name' => $this->l('You must sign-up for SmartCoin and configure your account settings in the module (api key, secret key...etc.)'), 'result' => $this->checkSettings());
+  		$tests['configuration'] = array('name' => $this->l('You must sign-up for Smartcoin and configure your account settings in the module (api key, secret key...etc.)'), 'result' => $this->checkSettings());
 
   		if (_PS_VERSION_ < 1.5)
   		{
@@ -569,7 +577,7 @@
   	}
 
     /**
-	   * Display the Back-office interface of the SmartCoin's module
+	   * Display the Back-office interface of the Smartcoin's module
 	   *
 	   * @return string HTML/JS Content
 	   */
@@ -587,7 +595,7 @@
   		$requirements = $this->checkRequirements();
   		$errors = array();
   		/* Update Configuration Values when settings are updated */
-  		if (Tools::isSubmit('SubmitSmartCoin')) {
+  		if (Tools::isSubmit('SubmitSmartcoin')) {
   			if (strpos(Tools::getValue('smartcoin_api_key_test'), "sk") !== false || strpos(Tools::getValue('smartcoin_api_key_live'), "sk") !== false ) {
   				$errors[] = "You've entered your private key in the public key field!";
   			}
@@ -622,16 +630,16 @@
   		</script>
   		<link href="'.$this->_path.'css/smartcoin-prestashop-admin.css" rel="stylesheet" type="text/css" media="all" />
   		<div class="smartcoin-module-wrapper">
-  			'.(Tools::isSubmit('SubmitSmartCoin') ? '<div class="conf confirmation">'.$this->l('Settings successfully saved').'<img src="http://www.prestashop.com/modules/'.$this->name.'.png?api_user='.urlencode($_SERVER['HTTP_HOST']).'" style="display: none;" /></div>' : '').'
+  			'.(Tools::isSubmit('SubmitSmartcoin') ? '<div class="conf confirmation">'.$this->l('Settings successfully saved').'<img src="http://www.prestashop.com/modules/'.$this->name.'.png?api_user='.urlencode($_SERVER['HTTP_HOST']).'" style="display: none;" /></div>' : '').'
   			<div class="smartcoin-module-header">
   				<a href="https://manage.smartcoin.com.br/signup" rel="external"><img src="'.$this->_path.'img/smartcoin-logo.gif" alt="smartcoin" class="smartcoin-logo" /></a>
-  				<span class="smartcoin-module-intro">'.$this->l('SmartCoin makes it easy to start accepting credit cards on the web today.').'</span>
+  				<span class="smartcoin-module-intro">'.$this->l('Smartcoin makes it easy to start accepting credit cards on the web today.').'</span>
   				<a href="https://manage.smartcoin.com.br/signup" rel="external" target="_blank" class="smartcoin-module-create-btn"><span>'.$this->l('Create an Account').'</span></a>
   			</div>
   			<fieldset>
   				<legend><img src="'.$this->_path.'img/checks-icon.gif" alt="" />'.$this->l('Technical Checks').'</legend>
-  				<div class="'.($requirements['result'] ? 'conf">'.$this->l('Good news! All the checks were successfully performed. You can now configure your module and start using SmartCoin.') :
-  				'warn">'.$this->l('Unfortunately, at least one issue is preventing you from using SmartCoin. Please fix the issue and reload this page.')).'</div>
+  				<div class="'.($requirements['result'] ? 'conf">'.$this->l('Good news! All the checks were successfully performed. You can now configure your module and start using Smartcoin.') :
+  				'warn">'.$this->l('Unfortunately, at least one issue is preventing you from using Smartcoin. Please fix the issue and reload this page.')).'</div>
   				<table cellspacing="0" cellpadding="0" class="smartcoin-technical">';
   				foreach ($requirements as $k => $requirement)
   					if ($k != 'result')
@@ -740,7 +748,7 @@
 
       $output .= '
 					<tr>
-						<td colspan="2" class="td-noborder save"><input type="submit" class="button" name="SubmitSmartCoin" value="'.$this->l('Save Settings').'" /></td>
+						<td colspan="2" class="td-noborder save"><input type="submit" class="button" name="SubmitSmartcoin" value="'.$this->l('Save Settings').'" /></td>
 					</tr>
 				</table>
 			</fieldset>
@@ -765,6 +773,12 @@
 			</fieldset>
 			<div class="clear"></div>
 			<br />
+      <fieldset>
+        <legend><img src="'.$this->_path.'img/checks-icon.gif" alt="" />'.$this->l('Webhooks').'</legend>
+        '.$this->l('In order to receive chargeback information from Smartcoin, you must provide a Webhook link in Smartcoin\'s admin panel.').'<br />
+        '.$this->l('To get started, please visit Smartcoin and setup the following Webhook:').'<br /><br />
+        <strong>'.(Configuration::get('PS_SSL_ENABLED') ? 'https://' : 'http://').$_SERVER['HTTP_HOST'].__PS_BASE_URI__.'index.php?process=webhook&fc=module&module=smartcoin&controller=default&token='.Tools::safeOutput(Configuration::get('SMARTCOIN_WEBHOOK_TOKEN')).'</strong>
+      </fieldset>
 		</div>
 		</form>
 		<script type="text/javascript">
