@@ -2,7 +2,7 @@
 <module>
 	<name>smartcoin</name>
 	<displayName><![CDATA[SmartCoin]]></displayName>
-	<version><![CDATA[0.2.5]]></version>
+	<version><![CDATA[0.2.6]]></version>
 	<description><![CDATA[Accept payments with Smartcoin]]></description>
 	<author><![CDATA[Smartcoin LTDA.]]></author>
 	<tab><![CDATA[payments_gateways]]></tab>
