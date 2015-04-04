@@ -7,7 +7,7 @@
     public function __construct() {
       $this->name = 'smartcoin';
       $this->tab = "payments_gateways";
-      $this->version = '0.2.4';
+      $this->version = '0.2.6';
       $this->author = "Smartcoin LTDA.";
       $this->need_instance = 0;
 
@@ -35,6 +35,7 @@
         		Configuration::updateValue('SMARTCOIN_CHARGEBACKS_ORDER_STATUS', (int)Configuration::get('PS_OS_ERROR')) &&
             Configuration::updateValue('SMARTCOIN_PAYMENT_OPTION_CREDIT_CARD', 1) &&
             Configuration::updateValue('SMARTCOIN_PAYMENT_OPTION_BANK_SLIP', 1) &&
+            Configuration::updateValue('SMARTCOIN_BANK_SLIP_DISCOUNT', 0) &&
             Configuration::updateValue('SMARTCOIN_WEBHOOK_TOKEN', md5(Tools::passwdGen()));
 
       return $ret;
@@ -100,10 +101,11 @@
   	 */
   	public function uninstall() {
   		return parent::uninstall() && Configuration::deleteByName('SMARTCOIN_API_KEY_TEST') && Configuration::deleteByName('SMARTCOIN_API_KEY_LIVE')
-  		&& Configuration::deleteByName('SMARTCOIN_MODE') && Configuration::deleteByName('SMARTCOIN_SECRET_KEY_TEST') && Configuration::deleteByName('SMARTCOIN_SECRET_KEY_LIVE') &&
-  		Configuration::deleteByName('SMARTCOIN_CHARGEBACKS_ORDER_STATUS') && Configuration::deleteByName('SMARTCOIN_PENDING_ORDER_STATUS') && Configuration::deleteByName('SMARTCOIN_PAYMENT_ORDER_STATUS') &&
-  		Configuration::deleteByName('SMARTCOIN_PAYMENT_OPTION_CREDIT_CARD') && Configuration::deleteByName('SMARTCOIN_PAYMENT_OPTION_BANK_SLIP') && Configuration::deleteByName('SMARTCOIN_WEBHOOK_TOKEN') &&
-      Db::getInstance()->Execute('DROP TABLE `'._DB_PREFIX_.'smartcoin_transaction`');
+  		&& Configuration::deleteByName('SMARTCOIN_MODE') && Configuration::deleteByName('SMARTCOIN_SECRET_KEY_TEST') && Configuration::deleteByName('SMARTCOIN_SECRET_KEY_LIVE') 
+      && Configuration::deleteByName('SMARTCOIN_CHARGEBACKS_ORDER_STATUS') && Configuration::deleteByName('SMARTCOIN_PENDING_ORDER_STATUS')
+      && Configuration::deleteByName('SMARTCOIN_PAYMENT_ORDER_STATUS') && Configuration::deleteByName('SMARTCOIN_PAYMENT_OPTION_CREDIT_CARD')
+      && Configuration::deleteByName('SMARTCOIN_PAYMENT_OPTION_BANK_SLIP') && Configuration::deleteByName('SMARTCOIN_BANK_SLIP_DISCOUNT') && Configuration::deleteByName('SMARTCOIN_WEBHOOK_TOKEN')
+      && Db::getInstance()->Execute('DROP TABLE `'._DB_PREFIX_.'smartcoin_transaction`');
   	}
 
 
@@ -208,10 +210,16 @@
   		try {
         $charge_details = array();
         if($charge_type === 'bank_slip'){
-          $charge_details = array('amount' => $this->context->cart->getOrderTotal() * 100, 'currency' => $this->context->currency->iso_code, 'description' => $this->l('PrestaShop Customer ID:').
+          $bank_slip_discount = Configuration::get('SMARTCOIN_BANK_SLIP_DISCOUNT');
+          $amount = $this->context->cart->getOrderTotal() * 100;
+
+          if($bank_slip_discount > 0 )
+            $amount = $amount - ($amount*($bank_slip_discount/100));
+          
+          $charge_details = array('amount' => $amount, 'currency' => $this->context->currency->iso_code, 'description' => $this->l('PrestaShop Customer ID:').
         ' '.(int)$this->context->cookie->id_customer.' - '.$this->l('PrestaShop Cart ID:').' '.(int)$this->context->cart->id);
           $charge_details['type'] = $charge_type;
-        }else{
+        }else{ //credit card
           $charge_details = array('amount' => $this->context->cart->getOrderTotal() * 100, 'currency' => $this->context->currency->iso_code, 'description' => $this->l('PrestaShop Customer ID:').
         ' '.(int)$this->context->cookie->id_customer.' - '.$this->l('PrestaShop Cart ID:').' '.(int)$this->context->cart->id);  
           $charge_details['card'] = $token;
@@ -610,7 +618,8 @@
   					'SMARTCOIN_PAYMENT_ORDER_STATUS' => (int)Tools::getValue('smartcoin_payment_status'),
   					'SMARTCOIN_CHARGEBACKS_ORDER_STATUS' => (int)Tools::getValue('smartcoin_chargebacks_status'),
             'SMARTCOIN_PAYMENT_OPTION_CREDIT_CARD' => (int)Tools::getValue('smartcoin_payment_option_credit_card'),
-            'SMARTCOIN_PAYMENT_OPTION_BANK_SLIP' => (int)Tools::getValue('smartcoin_payment_option_bank_slip')
+            'SMARTCOIN_PAYMENT_OPTION_BANK_SLIP' => (int)Tools::getValue('smartcoin_payment_option_bank_slip'),
+            'SMARTCOIN_BANK_SLIP_DISCOUNT' => (int)Tools::getValue('smartcoin_bank_slip_discount')
   				);
 
   				foreach ($configuration_values as $configuration_key => $configuration_value)
@@ -728,6 +737,19 @@
           </table>
         </tr>';
 
+      $output .= '
+        <td align="center" valign="middle" colspan="2">
+          <table cellspacing="0" cellpadding="0" class="innerTable">
+            <tr>
+              <td align="right" valign="middle">'.$this->l('Discount for Bank Slip:').'</td>
+              <td align="right" valign="middle">
+                <input type="number" name="smartcoin_bank_slip_discount" value="'.Configuration::get('SMARTCOIN_BANK_SLIP_DISCOUNT').'" style="width: 30px;" />%
+              </td>
+            </tr>
+          </table>
+        </tr>
+      ';
+
       $statuses_options = array(array('name' => 'smartcoin_payment_status', 'label' => $this->l('Order status in case of sucessfull payment:'), 'current_value' => Configuration::get('SMARTCOIN_PAYMENT_ORDER_STATUS')),
 			array('name' => 'smartcoin_pending_status', 'label' => $this->l('Order status in case of unsucessfull address/zip-code check:'), 'current_value' => Configuration::get('SMARTCOIN_PENDING_ORDER_STATUS')),
 			array('name' => 'smartcoin_chargebacks_status', 'label' => $this->l('Order status in case of a chargeback (dispute):'), 'current_value' => Configuration::get('SMARTCOIN_CHARGEBACKS_ORDER_STATUS')));
@@ -775,8 +797,8 @@
 			<br />
       <fieldset>
         <legend><img src="'.$this->_path.'img/checks-icon.gif" alt="" />'.$this->l('Webhooks').'</legend>
-        '.$this->l('In order to receive chargeback information from Smartcoin, you must provide a Webhook link in Smartcoin\'s admin panel.').'<br />
-        '.$this->l('To get started, please visit Smartcoin and setup the following Webhook:').'<br /><br />
+        '.$this->l('In order to receive charge updates from Smartcoin, you must provide a Webhook link in Smartcoin\'s admin panel.').'<br />
+        '.$this->l('To get started, please visit Smartcoin and setup the following Webhook in Menu->Settings->Webhooks:').'<br /><br />
         <strong>'.(Configuration::get('PS_SSL_ENABLED') ? 'https://' : 'http://').$_SERVER['HTTP_HOST'].__PS_BASE_URI__.'index.php?process=webhook&fc=module&module=smartcoin&controller=default&token='.Tools::safeOutput(Configuration::get('SMARTCOIN_WEBHOOK_TOKEN')).'</strong>
       </fieldset>
 		</div>

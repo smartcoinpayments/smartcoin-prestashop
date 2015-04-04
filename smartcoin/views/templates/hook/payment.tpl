@@ -82,7 +82,7 @@
 					{assign var='startyear' value=$smarty.now|date_format:"%Y"}
 		            		{assign var='endyear' value=($smarty.now|date_format:"%Y" + 10)}
 
-		            		{for $i=($startyear+1) to $endyear}
+		            		{for $i=($startyear) to $endyear}
 		                		<option value="{$i}">{$i}</option>
 		            		{/for}
 		        </select>
